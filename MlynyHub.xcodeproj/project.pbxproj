@@ -6,6 +6,13 @@
 	objectVersion = 77;
 	objects = {
 
+/* Begin PBXBuildFile section */
+		E9288E512D739E7E00ABC717 /* FirebaseAuth in Frameworks */ = {isa = PBXBuildFile; productRef = E9288E502D739E7E00ABC717 /* FirebaseAuth */; };
+		E9288E532D739E7E00ABC717 /* FirebaseCore in Frameworks */ = {isa = PBXBuildFile; productRef = E9288E522D739E7E00ABC717 /* FirebaseCore */; };
+		E9288E552D739E7E00ABC717 /* FirebaseFirestore in Frameworks */ = {isa = PBXBuildFile; productRef = E9288E542D739E7E00ABC717 /* FirebaseFirestore */; };
+		E9288E572D739E7E00ABC717 /* FirebaseMessaging in Frameworks */ = {isa = PBXBuildFile; productRef = E9288E562D739E7E00ABC717 /* FirebaseMessaging */; };
+/* End PBXBuildFile section */
+
 /* Begin PBXContainerItemProxy section */
 		E938ACBE2D72418400F8F31E /* PBXContainerItemProxy */ = {
 			isa = PBXContainerItemProxy;
@@ -65,6 +72,10 @@
 			isa = PBXFrameworksBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
+				E9288E572D739E7E00ABC717 /* FirebaseMessaging in Frameworks */,
+				E9288E532D739E7E00ABC717 /* FirebaseCore in Frameworks */,
+				E9288E512D739E7E00ABC717 /* FirebaseAuth in Frameworks */,
+				E9288E552D739E7E00ABC717 /* FirebaseFirestore in Frameworks */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -85,12 +96,20 @@
 /* End PBXFrameworksBuildPhase section */
 
 /* Begin PBXGroup section */
+		E9288E4F2D739E7E00ABC717 /* Frameworks */ = {
+			isa = PBXGroup;
+			children = (
+			);
+			name = Frameworks;
+			sourceTree = "<group>";
+		};
 		E938AC9E2D72418200F8F31E = {
 			isa = PBXGroup;
 			children = (
 				E938ACA92D72418200F8F31E /* MlynyHub */,
 				E938ACC02D72418400F8F31E /* MlynyHubTests */,
 				E938ACCA2D72418400F8F31E /* MlynyHubUITests */,
+				E9288E4F2D739E7E00ABC717 /* Frameworks */,
 				E938ACA82D72418200F8F31E /* Products */,
 			);
 			sourceTree = "<group>";
@@ -125,6 +144,10 @@
 			);
 			name = MlynyHub;
 			packageProductDependencies = (
+				E9288E502D739E7E00ABC717 /* FirebaseAuth */,
+				E9288E522D739E7E00ABC717 /* FirebaseCore */,
+				E9288E542D739E7E00ABC717 /* FirebaseFirestore */,
+				E9288E562D739E7E00ABC717 /* FirebaseMessaging */,
 			);
 			productName = MlynyHub;
 			productReference = E938ACA72D72418200F8F31E /* MlynyHub.app */;
@@ -305,7 +328,7 @@
 					"@executable_path/Frameworks",
 				);
 				MARKETING_VERSION = 1.0;
-				PRODUCT_BUNDLE_IDENTIFIER = com.peterstef.MlynyHub;
+				PRODUCT_BUNDLE_IDENTIFIER = com.kazimstefaneMlynyHub;
 				PRODUCT_NAME = "$(TARGET_NAME)";
 				SWIFT_EMIT_LOC_STRINGS = YES;
 				SWIFT_VERSION = 5.0;
@@ -333,7 +356,7 @@
 					"@executable_path/Frameworks",
 				);
 				MARKETING_VERSION = 1.0;
-				PRODUCT_BUNDLE_IDENTIFIER = com.peterstef.MlynyHub;
+				PRODUCT_BUNDLE_IDENTIFIER = com.kazimstefaneMlynyHub;
 				PRODUCT_NAME = "$(TARGET_NAME)";
 				SWIFT_EMIT_LOC_STRINGS = YES;
 				SWIFT_VERSION = 5.0;
@@ -583,6 +606,29 @@
 			};
 		};
 /* End XCRemoteSwiftPackageReference section */
+
+/* Begin XCSwiftPackageProductDependency section */
+		E9288E502D739E7E00ABC717 /* FirebaseAuth */ = {
+			isa = XCSwiftPackageProductDependency;
+			package = E9288DC92D73948F00ABC717 /* XCRemoteSwiftPackageReference "firebase-ios-sdk" */;
+			productName = FirebaseAuth;
+		};
+		E9288E522D739E7E00ABC717 /* FirebaseCore */ = {
+			isa = XCSwiftPackageProductDependency;
+			package = E9288DC92D73948F00ABC717 /* XCRemoteSwiftPackageReference "firebase-ios-sdk" */;
+			productName = FirebaseCore;
+		};
+		E9288E542D739E7E00ABC717 /* FirebaseFirestore */ = {
+			isa = XCSwiftPackageProductDependency;
+			package = E9288DC92D73948F00ABC717 /* XCRemoteSwiftPackageReference "firebase-ios-sdk" */;
+			productName = FirebaseFirestore;
+		};
+		E9288E562D739E7E00ABC717 /* FirebaseMessaging */ = {
+			isa = XCSwiftPackageProductDependency;
+			package = E9288DC92D73948F00ABC717 /* XCRemoteSwiftPackageReference "firebase-ios-sdk" */;
+			productName = FirebaseMessaging;
+		};
+/* End XCSwiftPackageProductDependency section */
 	};
 	rootObject = E938AC9F2D72418200F8F31E /* Project object */;
 }
