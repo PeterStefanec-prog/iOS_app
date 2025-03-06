@@ -8,13 +8,14 @@
 import UIKit
 import FirebaseAuth
 
-class ViewController: UIViewController {
+class LoginViewController: UIViewController {
 
     @IBOutlet weak var login_button_outlet: UIButton!
     @IBOutlet weak var password_text_field: UITextField!
     @IBOutlet weak var email_text_field: UITextField!
     
     override func viewDidLoad() {
+        navigationItem.hidesBackButton = true
         super.viewDidLoad()
         // Do any additional setup after loading the view.
     }

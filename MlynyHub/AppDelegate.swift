@@ -6,13 +6,14 @@
 //
 
 import UIKit
+import FirebaseAuth
 import Firebase
 import IQKeyboardManagerSwift
 
 @main
 class AppDelegate: UIResponder, UIApplicationDelegate {
 
-
+    var window: UIWindow?
 
     func application(_ application: UIApplication, didFinishLaunchingWithOptions launchOptions: [UIApplication.LaunchOptionsKey: Any]?) -> Bool {
         
@@ -22,6 +23,19 @@ class AppDelegate: UIResponder, UIApplicationDelegate {
         IQKeyboardManager.shared.resignOnTouchOutside = true
         
         
+        // based on firebase - is user logged in or not?
+        window = UIWindow(frame: UIScreen.main.bounds)
+                let storyboard = UIStoryboard(name: "Main", bundle: nil)
+                
+                let rootViewController: UIViewController
+                if Auth.auth().currentUser != nil {
+                    rootViewController = storyboard.instantiateViewController(withIdentifier: "MainViewController")
+                } else {
+                    rootViewController = storyboard.instantiateViewController(withIdentifier: "LoginViewController")
+                }
+                
+                window?.rootViewController = rootViewController
+                window?.makeKeyAndVisible()
         
         return true
     }

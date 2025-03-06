@@ -21,6 +21,9 @@ class MainViewController: UIViewController {
         super.viewDidLoad()
         // Do any additional setup after loading the view.
         navigationItem.hidesBackButton = true
+
+
+        
         
         // just for testinggggg
         let db = Firestore.firestore()
@@ -63,7 +66,9 @@ class MainViewController: UIViewController {
         do {
           try firebaseAuth.signOut()
             // Go to the starting screen after logging out
-            navigationController?.popToRootViewController(animated: true)
+//            navigationController?.popToRootViewController(animated: true)
+            self.performSegue(withIdentifier: "log_out_segue", sender: self)
+
         } catch let signOutError as NSError {
             showAlert(title: "Error signing out", message: NSError.description())
             print("Error signing out: %@", signOutError)

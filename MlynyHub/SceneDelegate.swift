@@ -6,6 +6,7 @@
 //
 
 import UIKit
+import FirebaseAuth
 
 class SceneDelegate: UIResponder, UIWindowSceneDelegate {
 
@@ -16,8 +17,31 @@ class SceneDelegate: UIResponder, UIWindowSceneDelegate {
         // Use this method to optionally configure and attach the UIWindow `window` to the provided UIWindowScene `scene`.
         // If using a storyboard, the `window` property will automatically be initialized and attached to the scene.
         // This delegate does not imply the connecting scene or session are new (see `application:configurationForConnectingSceneSession` instead).
-        guard let _ = (scene as? UIWindowScene) else { return }
-    }
+        guard let windowScene = (scene as? UIWindowScene) else { return }
+
+                // Create a new UIWindow
+                window = UIWindow(windowScene: windowScene)
+
+                // Load  main storyboard
+                let storyboard = UIStoryboard(name: "Main", bundle: nil)
+
+                // Decide which view controller to show - also results in which view to show
+                let rootVC: UIViewController
+                if Auth.auth().currentUser != nil {
+                    // User is logged in
+                    rootVC = storyboard.instantiateViewController(withIdentifier: "MainViewController")
+                } else {
+                    // User is not logged in
+                    rootVC = storyboard.instantiateViewController(withIdentifier: "LoginViewController")
+                }
+
+                // Embed the chosen root VC in a navigation controller
+                let navController = UINavigationController(rootViewController: rootVC)
+
+                // Set the navigation controller as the window's root - important because of navigation bar - it manages a stack of controllers so it'll know that the back button does
+                window?.rootViewController = navController
+                window?.makeKeyAndVisible()
+            }
 
     func sceneDidDisconnect(_ scene: UIScene) {
         // Called as the scene is being released by the system.

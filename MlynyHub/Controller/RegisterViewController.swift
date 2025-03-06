@@ -33,15 +33,27 @@ class RegisterViewController: UIViewController {
     }
     
     @IBAction func register_pressed(_ sender: UIButton) {
+        // loading icon
+        register_button_outlet.configuration?.showsActivityIndicator = true
         
+        // MARK: - is all information provided?
+        if self.name_text_field.text == nil || self.surname_text_field.text == nil || self.user_name_text_field.text == nil || self.email_text_field.text == nil {
+            showAlert(title: "Provide all information", message: "Some of the information fields is empty")
+            // loading icon hide
+            self.register_button_outlet.configuration?.showsActivityIndicator = false
+        }
+        
+        
+        // MARK: - trying to connect to firebase database and checking the uniqness of password and email
         if let email = self.email_text_field.text, let password = self.password_text_field.text {
-            // loading icon
-            register_button_outlet.configuration?.showsActivityIndicator = true
             // Register users - firebase database
             Auth.auth().createUser(withEmail: email, password: password) { authResult, error in
                 if let e = error {
                     // show iOS native alert
                     self.showAlert(title: "Registration Error", message:  e.localizedDescription)
+                    
+                    // loading icon hide
+                    self.register_button_outlet.configuration?.showsActivityIndicator = false
                     return
                 }
                 
@@ -57,7 +69,8 @@ class RegisterViewController: UIViewController {
                     "email": email
                 ]
                 
-                // Reference Firestore database - we have only 1 database divided into collection Ado
+                
+                // Reference Firestore database - we have only 1 database divided into collection
                 let db = Firestore.firestore()
                 
                 // Save additional data in "users" collection with document id = uid
@@ -76,7 +89,7 @@ class RegisterViewController: UIViewController {
             }
         } else {
             print("User did not give us email or password")
-            // loading icon
+            // loading icon hide
             register_button_outlet.configuration?.showsActivityIndicator = false
         }
         

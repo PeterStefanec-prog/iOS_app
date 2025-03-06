@@ -8,10 +8,31 @@
         <capability name="documents saved in the Xcode 8 format" minToolsVersion="8.0"/>
     </dependencies>
     <scenes>
+        <!--Navigation Controller-->
+        <scene sceneID="O3P-93-gyD">
+            <objects>
+                <navigationController automaticallyAdjustsScrollViewInsets="NO" id="xAd-S4-l7h" sceneMemberID="viewController">
+                    <toolbarItems/>
+                    <navigationBar key="navigationBar" contentMode="scaleToFill" id="wxc-Bb-Okx">
+                        <rect key="frame" x="0.0" y="62" width="402" height="44"/>
+                        <autoresizingMask key="autoresizingMask"/>
+                    </navigationBar>
+                    <nil name="viewControllers"/>
+                    <toolbar key="toolbar" opaque="NO" clearsContextBeforeDrawing="NO" contentMode="scaleToFill" insetsLayoutMarginsFromSafeArea="NO" id="tc5-vj-ov7">
+                        <autoresizingMask key="autoresizingMask"/>
+                    </toolbar>
+                    <connections>
+                        <segue destination="BYZ-38-t0r" kind="relationship" relationship="rootViewController" id="7yc-KR-pwf"/>
+                    </connections>
+                </navigationController>
+                <placeholder placeholderIdentifier="IBFirstResponder" id="hnJ-tg-VVZ" userLabel="First Responder" customClass="UIResponder" sceneMemberID="firstResponder"/>
+            </objects>
+            <point key="canvasLocation" x="654" y="3"/>
+        </scene>
         <!--Welcome View Controller-->
         <scene sceneID="tne-QT-ifu">
             <objects>
-                <viewController title="Welcome View Controller" id="BYZ-38-t0r" customClass="ViewController" customModule="MlynyHub" customModuleProvider="target" sceneMemberID="viewController">
+                <viewController storyboardIdentifier="LoginViewController" title="Welcome View Controller" useStoryboardIdentifierAsRestorationIdentifier="YES" id="BYZ-38-t0r" customClass="LoginViewController" customModule="MlynyHub" customModuleProvider="target" sceneMemberID="viewController">
                     <view key="view" contentMode="scaleToFill" id="8bC-Xf-vdC">
                         <rect key="frame" x="0.0" y="0.0" width="402" height="874"/>
                         <autoresizingMask key="autoresizingMask" widthSizable="YES" heightSizable="YES"/>
@@ -244,7 +265,7 @@
         <!--Events Board View Controller-->
         <scene sceneID="ahG-0v-9U5">
             <objects>
-                <viewController title="Events Board View Controller" id="2Kb-Jn-qeq" customClass="MainViewController" customModule="MlynyHub" customModuleProvider="target" sceneMemberID="viewController">
+                <viewController storyboardIdentifier="MainViewController" title="Events Board View Controller" id="2Kb-Jn-qeq" customClass="MainViewController" customModule="MlynyHub" customModuleProvider="target" sceneMemberID="viewController">
                     <view key="view" contentMode="scaleToFill" id="UdQ-FS-T55">
                         <rect key="frame" x="0.0" y="0.0" width="402" height="874"/>
                         <autoresizingMask key="autoresizingMask" widthSizable="YES" heightSizable="YES"/>
@@ -267,6 +288,7 @@
                         <barButtonItem key="rightBarButtonItem" title="Log Out" id="cZj-eJ-qlA">
                             <connections>
                                 <action selector="log_out_button_pressed:" destination="2Kb-Jn-qeq" id="tna-1V-6Em"/>
+                                <segue destination="BYZ-38-t0r" kind="show" identifier="log_out_segue" id="DJh-8s-m7O"/>
                             </connections>
                         </barButtonItem>
                     </navigationItem>
@@ -276,29 +298,12 @@
                 </viewController>
                 <placeholder placeholderIdentifier="IBFirstResponder" id="oOF-AR-GyT" userLabel="First Responder" customClass="UIResponder" sceneMemberID="firstResponder"/>
             </objects>
-            <point key="canvasLocation" x="1377.8625954198474" y="869.71830985915494"/>
-        </scene>
-        <!--Navigation Controller-->
-        <scene sceneID="O3P-93-gyD">
-            <objects>
-                <navigationController automaticallyAdjustsScrollViewInsets="NO" id="xAd-S4-l7h" sceneMemberID="viewController">
-                    <toolbarItems/>
-                    <navigationBar key="navigationBar" contentMode="scaleToFill" id="wxc-Bb-Okx">
-                        <rect key="frame" x="0.0" y="62" width="402" height="44"/>
-                        <autoresizingMask key="autoresizingMask"/>
-                    </navigationBar>
-                    <nil name="viewControllers"/>
-                    <connections>
-                        <segue destination="BYZ-38-t0r" kind="relationship" relationship="rootViewController" id="7yc-KR-pwf"/>
-                    </connections>
-                </navigationController>
-                <placeholder placeholderIdentifier="IBFirstResponder" id="hnJ-tg-VVZ" userLabel="First Responder" customClass="UIResponder" sceneMemberID="firstResponder"/>
-            </objects>
-            <point key="canvasLocation" x="886.25954198473278" y="3.5211267605633805"/>
+            <point key="canvasLocation" x="1021" y="859"/>
         </scene>
     </scenes>
     <inferredMetricsTieBreakers>
-        <segue reference="Pyk-p4-OgN"/>
+        <segue reference="Xtb-Me-0jv"/>
+        <segue reference="7yc-KR-pwf"/>
     </inferredMetricsTieBreakers>
     <resources>
         <image name="Main_image" width="358" height="231"/>
