@@ -12,6 +12,7 @@ import Firebase
 class RegisterViewController: UIViewController {
     
 
+    @IBOutlet weak var register_button_outlet: UIButton!
     @IBOutlet weak var user_name_text_field: UITextField!
     
     @IBOutlet weak var name_text_field: UITextField!
@@ -34,6 +35,8 @@ class RegisterViewController: UIViewController {
     @IBAction func register_pressed(_ sender: UIButton) {
         
         if let email = self.email_text_field.text, let password = self.password_text_field.text {
+            // loading icon
+            register_button_outlet.configuration?.showsActivityIndicator = true
             // Register users - firebase database
             Auth.auth().createUser(withEmail: email, password: password) { authResult, error in
                 if let e = error {
@@ -68,10 +71,15 @@ class RegisterViewController: UIViewController {
                         self.performSegue(withIdentifier: "register_to_events", sender: self)
                     }
                 }
+                // loading icon
+                self.register_button_outlet.configuration?.showsActivityIndicator = false
             }
         } else {
             print("User did not give us email or password")
+            // loading icon
+            register_button_outlet.configuration?.showsActivityIndicator = false
         }
+        
     }
     
     
