@@ -12,7 +12,7 @@ import UIKit
 import FirebaseAuth
 import FirebaseFirestore
 
-class MainViewController: UIViewController {
+class AllEventsViewController: UIViewController {
 
     @IBOutlet weak var len_tak: UILabel!
     
