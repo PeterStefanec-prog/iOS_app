@@ -14,6 +14,8 @@ class LoginViewController: UIViewController {
     @IBOutlet weak var password_text_field: UITextField!
     @IBOutlet weak var email_text_field: UITextField!
     
+    
+    
     override func viewDidLoad() {
         navigationItem.hidesBackButton = true
         super.viewDidLoad()

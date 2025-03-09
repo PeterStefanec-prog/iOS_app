@@ -15,15 +15,27 @@ import FirebaseFirestore
 class AllEventsViewController: UIViewController {
 
     @IBOutlet weak var len_tak: UILabel!
+    @IBOutlet weak var bottom_panel: UIView!
+    @IBOutlet weak var Event_table_view: UITableView!
+    
+    
+    //pole eventov na testovanie
+    var events = [
+        Event(Title: "Friday Football", max_slots: 15, filled_slots: 12, Date: "10.3.2025 10:00")
+    ]
     
     
     override func viewDidLoad() {
         super.viewDidLoad()
         // Do any additional setup after loading the view.
+        //dolna lista setup - nesiel cez storyboard :(
+        bottom_panel.layer.borderWidth = 2.0 // Hrúbka borderu
+        bottom_panel.layer.borderColor = UIColor(hex: "#6C76EF")?.cgColor //specialny prikaz cez hex_to_code
+        bottom_panel.layer.cornerRadius = 25.0
+        bottom_panel.clipsToBounds = true
+        
         navigationItem.hidesBackButton = true
 
-
-        
         
         // just for testinggggg
         let db = Firestore.firestore()
@@ -74,5 +86,18 @@ class AllEventsViewController: UIViewController {
             print("Error signing out: %@", signOutError)
         }
     }
+    
+}
+extension AllEventsViewController : UITableViewDataSource {
+    func tableView(_ tableView: UITableView, numberOfRowsInSection section: Int) -> Int {
+        return events.count
+    }
+    
+    func tableView(_ tableView: UITableView, cellForRowAt indexPath: IndexPath) -> UITableViewCell {
+        let cell = tableView.dequeueReusableCell(withIdentifier: "Reusable_cell", for: indexPath)
+        cell.textLabel?.text = "lessgo"
+        return cell
+    }
+    
     
 }

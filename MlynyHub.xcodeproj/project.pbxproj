@@ -7,11 +7,12 @@
 	objects = {
 
 /* Begin PBXBuildFile section */
+		519EF7C22D7DD87C00457DBD /* IQKeyboardManagerSwift in Frameworks */ = {isa = PBXBuildFile; productRef = 519EF7C12D7DD87C00457DBD /* IQKeyboardManagerSwift */; };
+		519EF7C42D7DD89B00457DBD /* IQKeyboardManagerSwift in Frameworks */ = {isa = PBXBuildFile; productRef = 519EF7C32D7DD89B00457DBD /* IQKeyboardManagerSwift */; };
 		E9288E512D739E7E00ABC717 /* FirebaseAuth in Frameworks */ = {isa = PBXBuildFile; productRef = E9288E502D739E7E00ABC717 /* FirebaseAuth */; };
 		E9288E532D739E7E00ABC717 /* FirebaseCore in Frameworks */ = {isa = PBXBuildFile; productRef = E9288E522D739E7E00ABC717 /* FirebaseCore */; };
 		E9288E552D739E7E00ABC717 /* FirebaseFirestore in Frameworks */ = {isa = PBXBuildFile; productRef = E9288E542D739E7E00ABC717 /* FirebaseFirestore */; };
 		E9288E572D739E7E00ABC717 /* FirebaseMessaging in Frameworks */ = {isa = PBXBuildFile; productRef = E9288E562D739E7E00ABC717 /* FirebaseMessaging */; };
-		E9E468882D791DBC009B7D3D /* IQKeyboardManagerSwift in Frameworks */ = {isa = PBXBuildFile; productRef = E9E468872D791DBC009B7D3D /* IQKeyboardManagerSwift */; };
 /* End PBXBuildFile section */
 
 /* Begin PBXContainerItemProxy section */
@@ -73,7 +74,7 @@
 			isa = PBXFrameworksBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
-				E9E468882D791DBC009B7D3D /* IQKeyboardManagerSwift in Frameworks */,
+				519EF7C22D7DD87C00457DBD /* IQKeyboardManagerSwift in Frameworks */,
 				E9288E572D739E7E00ABC717 /* FirebaseMessaging in Frameworks */,
 				E9288E532D739E7E00ABC717 /* FirebaseCore in Frameworks */,
 				E9288E512D739E7E00ABC717 /* FirebaseAuth in Frameworks */,
@@ -85,6 +86,7 @@
 			isa = PBXFrameworksBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
+				519EF7C42D7DD89B00457DBD /* IQKeyboardManagerSwift in Frameworks */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -150,7 +152,7 @@
 				E9288E522D739E7E00ABC717 /* FirebaseCore */,
 				E9288E542D739E7E00ABC717 /* FirebaseFirestore */,
 				E9288E562D739E7E00ABC717 /* FirebaseMessaging */,
-				E9E468872D791DBC009B7D3D /* IQKeyboardManagerSwift */,
+				519EF7C12D7DD87C00457DBD /* IQKeyboardManagerSwift */,
 			);
 			productName = MlynyHub;
 			productReference = E938ACA72D72418200F8F31E /* MlynyHub.app */;
@@ -174,6 +176,7 @@
 			);
 			name = MlynyHubTests;
 			packageProductDependencies = (
+				519EF7C32D7DD89B00457DBD /* IQKeyboardManagerSwift */,
 			);
 			productName = MlynyHubTests;
 			productReference = E938ACBD2D72418400F8F31E /* MlynyHubTests.xctest */;
@@ -236,7 +239,7 @@
 			minimizedProjectReferenceProxies = 1;
 			packageReferences = (
 				E9288DC92D73948F00ABC717 /* XCRemoteSwiftPackageReference "firebase-ios-sdk" */,
-				E90058882D791BA300FC963D /* XCRemoteSwiftPackageReference "IQKeyboardManager" */,
+				519EF7C02D7DD6AC00457DBD /* XCRemoteSwiftPackageReference "IQKeyboardManager" */,
 			);
 			preferredProjectObjectVersion = 77;
 			productRefGroup = E938ACA82D72418200F8F31E /* Products */;
@@ -319,7 +322,7 @@
 				ASSETCATALOG_COMPILER_GLOBAL_ACCENT_COLOR_NAME = AccentColor;
 				CODE_SIGN_STYLE = Automatic;
 				CURRENT_PROJECT_VERSION = 1;
-				DEVELOPMENT_TEAM = VHFJG97A4L;
+				DEVELOPMENT_TEAM = 4FMQ6YC74V;
 				GENERATE_INFOPLIST_FILE = YES;
 				INFOPLIST_FILE = MlynyHub/Info.plist;
 				INFOPLIST_KEY_UIApplicationSupportsIndirectInputEvents = YES;
@@ -347,7 +350,7 @@
 				ASSETCATALOG_COMPILER_GLOBAL_ACCENT_COLOR_NAME = AccentColor;
 				CODE_SIGN_STYLE = Automatic;
 				CURRENT_PROJECT_VERSION = 1;
-				DEVELOPMENT_TEAM = VHFJG97A4L;
+				DEVELOPMENT_TEAM = 4FMQ6YC74V;
 				GENERATE_INFOPLIST_FILE = YES;
 				INFOPLIST_FILE = MlynyHub/Info.plist;
 				INFOPLIST_KEY_UIApplicationSupportsIndirectInputEvents = YES;
@@ -601,7 +604,7 @@
 /* End XCConfigurationList section */
 
 /* Begin XCRemoteSwiftPackageReference section */
-		E90058882D791BA300FC963D /* XCRemoteSwiftPackageReference "IQKeyboardManager" */ = {
+		519EF7C02D7DD6AC00457DBD /* XCRemoteSwiftPackageReference "IQKeyboardManager" */ = {
 			isa = XCRemoteSwiftPackageReference;
 			repositoryURL = "https://github.com/hackiftekhar/IQKeyboardManager";
 			requirement = {
@@ -620,6 +623,16 @@
 /* End XCRemoteSwiftPackageReference section */
 
 /* Begin XCSwiftPackageProductDependency section */
+		519EF7C12D7DD87C00457DBD /* IQKeyboardManagerSwift */ = {
+			isa = XCSwiftPackageProductDependency;
+			package = 519EF7C02D7DD6AC00457DBD /* XCRemoteSwiftPackageReference "IQKeyboardManager" */;
+			productName = IQKeyboardManagerSwift;
+		};
+		519EF7C32D7DD89B00457DBD /* IQKeyboardManagerSwift */ = {
+			isa = XCSwiftPackageProductDependency;
+			package = 519EF7C02D7DD6AC00457DBD /* XCRemoteSwiftPackageReference "IQKeyboardManager" */;
+			productName = IQKeyboardManagerSwift;
+		};
 		E9288E502D739E7E00ABC717 /* FirebaseAuth */ = {
 			isa = XCSwiftPackageProductDependency;
 			package = E9288DC92D73948F00ABC717 /* XCRemoteSwiftPackageReference "firebase-ios-sdk" */;
@@ -639,11 +652,6 @@
 			isa = XCSwiftPackageProductDependency;
 			package = E9288DC92D73948F00ABC717 /* XCRemoteSwiftPackageReference "firebase-ios-sdk" */;
 			productName = FirebaseMessaging;
-		};
-		E9E468872D791DBC009B7D3D /* IQKeyboardManagerSwift */ = {
-			isa = XCSwiftPackageProductDependency;
-			package = E90058882D791BA300FC963D /* XCRemoteSwiftPackageReference "IQKeyboardManager" */;
-			productName = IQKeyboardManagerSwift;
 		};
 /* End XCSwiftPackageProductDependency section */
 	};
