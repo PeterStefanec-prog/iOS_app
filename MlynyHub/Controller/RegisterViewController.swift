@@ -66,7 +66,8 @@ class RegisterViewController: UIViewController {
                     "username": self.user_name_text_field.text ?? "",
                     "name": self.name_text_field.text ?? "",
                     "surname": self.surname_text_field.text ?? "",
-                    "email": email
+                    "email": email,
+                    "super_admin": false
                 ]
                 
                 
