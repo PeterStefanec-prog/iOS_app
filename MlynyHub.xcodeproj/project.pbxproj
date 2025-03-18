@@ -46,6 +46,22 @@
 			);
 			target = E938ACA62D72418200F8F31E /* MlynyHub */;
 		};
+		FEC24B582D89B068006F7758 /* Exceptions for "MlynyHub" folder in "MlynyHubTests" target */ = {
+			isa = PBXFileSystemSynchronizedBuildFileExceptionSet;
+			membershipExceptions = (
+				View/Event_cell.swift,
+				View/Event_cell.xib,
+			);
+			target = E938ACBC2D72418400F8F31E /* MlynyHubTests */;
+		};
+		FEC24B592D89B068006F7758 /* Exceptions for "MlynyHub" folder in "MlynyHubUITests" target */ = {
+			isa = PBXFileSystemSynchronizedBuildFileExceptionSet;
+			membershipExceptions = (
+				View/Event_cell.swift,
+				View/Event_cell.xib,
+			);
+			target = E938ACC62D72418400F8F31E /* MlynyHubUITests */;
+		};
 /* End PBXFileSystemSynchronizedBuildFileExceptionSet section */
 
 /* Begin PBXFileSystemSynchronizedRootGroup section */
@@ -53,6 +69,8 @@
 			isa = PBXFileSystemSynchronizedRootGroup;
 			exceptions = (
 				E938ACCF2D72418400F8F31E /* Exceptions for "MlynyHub" folder in "MlynyHub" target */,
+				FEC24B582D89B068006F7758 /* Exceptions for "MlynyHub" folder in "MlynyHubTests" target */,
+				FEC24B592D89B068006F7758 /* Exceptions for "MlynyHub" folder in "MlynyHubUITests" target */,
 			);
 			path = MlynyHub;
 			sourceTree = "<group>";
@@ -217,6 +235,7 @@
 				TargetAttributes = {
 					E938ACA62D72418200F8F31E = {
 						CreatedOnToolsVersion = 16.2;
+						LastSwiftMigration = 1620;
 					};
 					E938ACBC2D72418400F8F31E = {
 						CreatedOnToolsVersion = 16.2;
@@ -320,9 +339,10 @@
 			buildSettings = {
 				ASSETCATALOG_COMPILER_APPICON_NAME = AppIcon;
 				ASSETCATALOG_COMPILER_GLOBAL_ACCENT_COLOR_NAME = AccentColor;
+				CLANG_ENABLE_MODULES = YES;
 				CODE_SIGN_STYLE = Automatic;
 				CURRENT_PROJECT_VERSION = 1;
-				DEVELOPMENT_TEAM = VHFJG97A4L;
+				DEVELOPMENT_TEAM = 4FMQ6YC74V;
 				GENERATE_INFOPLIST_FILE = YES;
 				INFOPLIST_FILE = MlynyHub/Info.plist;
 				INFOPLIST_KEY_UIApplicationSupportsIndirectInputEvents = YES;
@@ -338,6 +358,7 @@
 				PRODUCT_BUNDLE_IDENTIFIER = com.kazimsstefaneMlynyHub;
 				PRODUCT_NAME = "$(TARGET_NAME)";
 				SWIFT_EMIT_LOC_STRINGS = YES;
+				SWIFT_OPTIMIZATION_LEVEL = "-Onone";
 				SWIFT_VERSION = 5.0;
 				TARGETED_DEVICE_FAMILY = "1,2";
 			};
@@ -348,9 +369,10 @@
 			buildSettings = {
 				ASSETCATALOG_COMPILER_APPICON_NAME = AppIcon;
 				ASSETCATALOG_COMPILER_GLOBAL_ACCENT_COLOR_NAME = AccentColor;
+				CLANG_ENABLE_MODULES = YES;
 				CODE_SIGN_STYLE = Automatic;
 				CURRENT_PROJECT_VERSION = 1;
-				DEVELOPMENT_TEAM = VHFJG97A4L;
+				DEVELOPMENT_TEAM = 4FMQ6YC74V;
 				GENERATE_INFOPLIST_FILE = YES;
 				INFOPLIST_FILE = MlynyHub/Info.plist;
 				INFOPLIST_KEY_UIApplicationSupportsIndirectInputEvents = YES;
