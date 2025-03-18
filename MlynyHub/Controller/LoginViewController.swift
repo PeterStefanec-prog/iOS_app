@@ -35,7 +35,7 @@ class LoginViewController: UIViewController {
                     // loading icon
                     login_button_outlet.configuration?.showsActivityIndicator = false
                 } else {
-                    self.performSegue(withIdentifier: "log_in_to_events", sender: self)
+                    self.performSegue(withIdentifier: "tab_bar", sender: self)
                     // loading icon
                     login_button_outlet.configuration?.showsActivityIndicator = false
                 }
