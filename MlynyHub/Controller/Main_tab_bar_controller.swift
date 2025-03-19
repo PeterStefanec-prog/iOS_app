@@ -12,17 +12,17 @@ class Main_tab_bar_controller: UITabBarController {
     override func viewDidLoad() {
         super.viewDidLoad()
         
+        
         let storyboard = UIStoryboard(name: "Main", bundle: nil)
-
-        // 1 tab
-        let pageController = Page_container(transitionStyle: .scroll, navigationOrientation: .horizontal, options: nil)
-        let tab2 = UINavigationController(rootViewController: pageController)
+        // 2 tab
+        let AllEventsVC = storyboard.instantiateViewController(withIdentifier: "All_events_page")
+        let tab2 = UINavigationController(rootViewController: AllEventsVC)
         tab2.tabBarItem = UITabBarItem(title: "", image: UIImage(named: "All_events_logo"), selectedImage: UIImage(named: "All_events_logo"))
         tab2.tabBarItem.imageInsets = UIEdgeInsets(top: 6, left: 0, bottom: -6, right: 0)
 
-        // 2 tab
-        let allEventsVC = storyboard.instantiateViewController(withIdentifier: "Settings_page")
-        let tab1 = UINavigationController(rootViewController: allEventsVC)
+        // 1 tab
+        let SettingsVC = storyboard.instantiateViewController(withIdentifier: "Settings_page")
+        let tab1 = UINavigationController(rootViewController: SettingsVC)
         tab1.tabBarItem = UITabBarItem(title: "", image: UIImage(named: "Settings_logo"), selectedImage: UIImage(named: "Settings_logo"))
         tab1.tabBarItem.imageInsets = UIEdgeInsets(top: 6, left: 0, bottom: -6, right: 0)
 
@@ -45,8 +45,20 @@ class Main_tab_bar_controller: UITabBarController {
         tab5.tabBarItem.imageInsets = UIEdgeInsets(top: 6, left: 0, bottom: -6, right: 0)
 
         self.viewControllers = [tab1, tab2, tab3, tab4, tab5]
-
+        //zaciname na all_events stranke
         self.selectedIndex = 1
+        
+        //animacie
+        func addAnimations(_ animations: @escaping () -> Void) {
+            UIView.transition(with: self.view, duration: 0.3, options: .transitionCrossDissolve, animations: animations, completion: nil)
+            }
+
+        func switchTabWithAnimation(to index: Int) {
+            guard index < (self.viewControllers?.count ?? 0) else { return }
+            addAnimations {
+                self.selectedIndex = index
+            }
+        }
     }
 
         
