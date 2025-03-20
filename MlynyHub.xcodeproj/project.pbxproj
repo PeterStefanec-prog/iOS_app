@@ -49,6 +49,7 @@
 		FEC24B582D89B068006F7758 /* Exceptions for "MlynyHub" folder in "MlynyHubTests" target */ = {
 			isa = PBXFileSystemSynchronizedBuildFileExceptionSet;
 			membershipExceptions = (
+				Controller/Add_event_view_controller.swift,
 				View/Event_cell.swift,
 				View/Event_cell.xib,
 			);
@@ -57,6 +58,7 @@
 		FEC24B592D89B068006F7758 /* Exceptions for "MlynyHub" folder in "MlynyHubUITests" target */ = {
 			isa = PBXFileSystemSynchronizedBuildFileExceptionSet;
 			membershipExceptions = (
+				Controller/Add_event_view_controller.swift,
 				View/Event_cell.swift,
 				View/Event_cell.xib,
 			);

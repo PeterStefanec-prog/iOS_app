@@ -19,11 +19,11 @@ class AllEventsViewController: UIViewController {
     
     //pole eventov na testovanie
     var events = [
-        Event_entry(Title: "Lobogo", max_slots: 0, filled_slots: 0, Date: ""),
-        Event_entry(Title: "Friday Football", max_slots: 15, filled_slots: 12, Date: "10.3.2025 10:00"),
-        Event_entry(Title: "Friday Football", max_slots: 15, filled_slots: 12, Date: "10.3.2025 10:00"),
-        Event_entry(Title: "Friday Football", max_slots: 15, filled_slots: 12, Date: "10.3.2025 10:00"),
-        Event_entry(Title: "Friday Football", max_slots: 15, filled_slots: 12, Date: "10.3.2025 10:00")
+        Event_entry(Title: "Lobogo",Description: "", max_slots: 0, filled_slots: 0, Date: ""),
+        Event_entry(Title: "Friday Football",Description: "", max_slots: 15, filled_slots: 12, Date: "10.3.2025 10:00"),
+        Event_entry(Title: "Friday Football",Description: "", max_slots: 15, filled_slots: 12, Date: "10.3.2025 10:00"),
+        Event_entry(Title: "Friday Football",Description: "", max_slots: 15, filled_slots: 12, Date: "10.3.2025 10:00"),
+        Event_entry(Title: "Friday Football",Description: "", max_slots: 15, filled_slots: 12, Date: "10.3.2025 10:00")
     ]
     
     
