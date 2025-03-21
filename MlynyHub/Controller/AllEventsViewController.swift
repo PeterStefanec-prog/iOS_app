@@ -28,7 +28,6 @@ class AllEventsViewController: UIViewController {
         //dolna lista setup - nesiel cez storyboard :(
         navigationItem.hidesBackButton = true
         Event_table_view.register(UINib(nibName: "Event_cell", bundle: nil), forCellReuseIdentifier: "Reusable_cell")
-        events.append(Event_entry(Title: "Lobogo",Description: "", max_slots: 0, filled_slots: 0, Date: ""))
         fetchEvents()
     }
     
@@ -57,28 +56,11 @@ extension AllEventsViewController : UITableViewDataSource {
     
     func tableView(_ tableView: UITableView, cellForRowAt indexPath: IndexPath) -> UITableViewCell {
         let cell = tableView.dequeueReusableCell(withIdentifier: "Reusable_cell", for: indexPath) as! Event_cell
-        //prvy event je logo
-        //print (cell.Event_name.text)
-        //if cell.Event_name.text == "2451" {
-        //    cell.Logo_image.image = UIImage(named: "top_logo")
-        //    cell.Background_frame.layer.opacity = 0
-        //}
-        //else {
-            cell.Event_name.text = events [indexPath.row].Title
-        //}
+        cell.Event_name.text = events [indexPath.row].Title
         cell.selectionStyle = .none
         return cell
     }
-    //upravenie vysky loga
-    /*
-    func tableView(_ tableView: UITableView, heightForRowAt indexPath: IndexPath) -> CGFloat {
-        if indexPath.row == 0 {
-            return 250 // Výška prvej bunky
-        } else {
-            return 310// Výška ostatných buniek
-        }
-    }
-     */
+
     
     func fetchEvents() {
         let db = Firestore.firestore()

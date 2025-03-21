@@ -289,7 +289,7 @@
         <!--Item-->
         <scene sceneID="UOx-Ja-ccB">
             <objects>
-                <viewController storyboardIdentifier="Settings_page" id="2fX-ju-Fru" sceneMemberID="viewController">
+                <viewController storyboardIdentifier="Settings_page" id="2fX-ju-Fru" customClass="Map_all_event_controller" customModule="MlynyHub" customModuleProvider="target" sceneMemberID="viewController">
                     <view key="view" contentMode="scaleToFill" id="4uu-BK-Fr4">
                         <rect key="frame" x="0.0" y="0.0" width="390" height="844"/>
                         <autoresizingMask key="autoresizingMask" widthSizable="YES" heightSizable="YES"/>
@@ -305,6 +305,9 @@
                     </view>
                     <tabBarItem key="tabBarItem" title="Item" id="PMb-aT-6Bq"/>
                     <navigationItem key="navigationItem" id="K1e-gj-H4t"/>
+                    <connections>
+                        <outlet property="Map_all_events" destination="Oau-zg-9Ll" id="ksk-2S-fb7"/>
+                    </connections>
                 </viewController>
                 <placeholder placeholderIdentifier="IBFirstResponder" id="C96-Nb-6yl" userLabel="First Responder" customClass="UIResponder" sceneMemberID="firstResponder"/>
             </objects>
