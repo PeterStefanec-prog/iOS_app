@@ -18,58 +18,19 @@ class AllEventsViewController: UIViewController {
     
     
     //pole eventov na testovanie
-    var events = [
-        Event_entry(Title: "Lobogo",Description: "", max_slots: 0, filled_slots: 0, Date: ""),
-        Event_entry(Title: "Friday Football",Description: "", max_slots: 15, filled_slots: 12, Date: "10.3.2025 10:00"),
-        Event_entry(Title: "Friday Football",Description: "", max_slots: 15, filled_slots: 12, Date: "10.3.2025 10:00"),
-        Event_entry(Title: "Friday Football",Description: "", max_slots: 15, filled_slots: 12, Date: "10.3.2025 10:00"),
-        Event_entry(Title: "Friday Football",Description: "", max_slots: 15, filled_slots: 12, Date: "10.3.2025 10:00")
-    ]
+    var events :[Event_entry] = []
     
     
     override func viewDidLoad() {
         super.viewDidLoad()
-        // Do any additional setup after loading the view.
         Event_table_view.dataSource = self
         Event_table_view.delegate = self
         //dolna lista setup - nesiel cez storyboard :(
-        
         navigationItem.hidesBackButton = true
-        
         Event_table_view.register(UINib(nibName: "Event_cell", bundle: nil), forCellReuseIdentifier: "Reusable_cell")
-
-        // just for testinggggg
-        let db = Firestore.firestore()
-        if let uid = Auth.auth().currentUser?.uid {
-            db.collection("users").document(uid).getDocument { documentSnapshot, error in
-                if let error = error {
-                    print("Error fetching document: \(error)")
-                    return
-                }
-                
-                guard let document = documentSnapshot, document.exists else {
-                    print("User document does not exist")
-                    return
-                }
-                
-                // Extract fields from the document
-                let data = document.data()
-                let name = data?["name"] as? String ?? ""
-                let username = data?["username"] as? String ?? ""
-                let surname = data?["surname"] as? String ?? ""
-                let email = data?["email"] as? String ?? ""
-                
-                print("Username: \(username)")
-                print("Surname: \(surname)")
-                print("Email: \(email)")
-            }
-        } else {
-            print("Oops problem")
-        }
-
-
+        events.append(Event_entry(Title: "Lobogo",Description: "", max_slots: 0, filled_slots: 0, Date: ""))
+        fetchEvents()
     }
-    
     
     
     // Logging out via firebase
@@ -88,6 +49,7 @@ class AllEventsViewController: UIViewController {
     }
     
 }
+//event_board
 extension AllEventsViewController : UITableViewDataSource {
     func tableView(_ tableView: UITableView, numberOfRowsInSection section: Int) -> Int {
         return events.count
@@ -95,17 +57,20 @@ extension AllEventsViewController : UITableViewDataSource {
     
     func tableView(_ tableView: UITableView, cellForRowAt indexPath: IndexPath) -> UITableViewCell {
         let cell = tableView.dequeueReusableCell(withIdentifier: "Reusable_cell", for: indexPath) as! Event_cell
-        if indexPath.row == 0 {
-            cell.Logo_image.image = UIImage(named: "top_logo")
-            cell.Background_frame.layer.opacity = 0
-        }
-        else {
+        //prvy event je logo
+        //print (cell.Event_name.text)
+        //if cell.Event_name.text == "2451" {
+        //    cell.Logo_image.image = UIImage(named: "top_logo")
+        //    cell.Background_frame.layer.opacity = 0
+        //}
+        //else {
             cell.Event_name.text = events [indexPath.row].Title
-        }
+        //}
         cell.selectionStyle = .none
         return cell
     }
-    
+    //upravenie vysky loga
+    /*
     func tableView(_ tableView: UITableView, heightForRowAt indexPath: IndexPath) -> CGFloat {
         if indexPath.row == 0 {
             return 250 // Výška prvej bunky
@@ -113,6 +78,40 @@ extension AllEventsViewController : UITableViewDataSource {
             return 310// Výška ostatných buniek
         }
     }
+     */
+    
+    func fetchEvents() {
+        let db = Firestore.firestore()
+        db.collection("Events").order(by: "Date", descending: false).addSnapshotListener { querySnapshot, error in
+            if let error = error {
+                print("Chyba pri načítaní eventov: \(error.localizedDescription)")
+                return
+            }
+            self.events.removeAll()
+            // ✅ Zachová len prvý prvok (logo), ale odstráni všetky eventy
+            //let logo_event = Event_entry(Title: "Lobogo", Description: "", max_slots: 0, filled_slots: 0, Date: "")
+            for document in querySnapshot!.documents {
+                let data = document.data()
+                let title = data["Title"] as? String ?? "Bez názvu"
+                let description = data["Description"] as? String ?? ""
+                let maxSlots = data["Participant slots"] as? Int ?? 0
+                let filledSlots = data["Filled slots"] as? Int ?? 0
+                let dateTimestamp = data["Date"] as? Timestamp
+                let dateString = dateTimestamp?.dateValue().description ?? ""
+
+                let event = Event_entry(Title: title, Description: description, max_slots: maxSlots, filled_slots: filledSlots, Date: dateString)
+                self.events.append(event)
+            }
+            print (self.events.count)
+            // 🔄 Aktualizuj tabuľku
+            DispatchQueue.main.async {
+                self.Event_table_view.reloadData()
+            }
+        }
+    }
+
+
+
 
     
 }

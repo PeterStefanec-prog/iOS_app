@@ -11,15 +11,15 @@ class Main_tab_bar_controller: UITabBarController {
 
     override func viewDidLoad() {
         super.viewDidLoad()
-        
+        //vzhlad tab baru
         let appearance = UITabBarAppearance()
         appearance.configureWithOpaqueBackground()
-        appearance.backgroundColor = UIColor.systemBackground // Automatické prispôsobenie svetlému/tmavému režimu
-        
-        appearance.stackedLayoutAppearance.selected.iconColor = UIColor.green // Farba vybraného itemu
+        appearance.backgroundColor = UIColor.systemBackground
+        //vybrany item
+        appearance.stackedLayoutAppearance.selected.iconColor = UIColor.green
         appearance.stackedLayoutAppearance.selected.titleTextAttributes = [NSAttributedString.Key.foregroundColor: UIColor.green]
-
-        appearance.stackedLayoutAppearance.normal.iconColor = UIColor.label // Farba nevybraných itemov
+        //nevybrane itemy
+        appearance.stackedLayoutAppearance.normal.iconColor = UIColor.label
         appearance.stackedLayoutAppearance.normal.titleTextAttributes = [NSAttributedString.Key.foregroundColor: UIColor.label]
         
         self.tabBar.standardAppearance = appearance
