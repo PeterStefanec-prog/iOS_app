@@ -64,7 +64,7 @@
                                 <color key="textColor" white="1" alpha="1" colorSpace="custom" customColorSpace="genericGamma22GrayColorSpace"/>
                                 <nil key="highlightedColor"/>
                             </label>
-                            <imageView clipsSubviews="YES" userInteractionEnabled="NO" contentMode="scaleToFill" horizontalHuggingPriority="251" verticalHuggingPriority="251" fixedFrame="YES" image="Football" translatesAutoresizingMaskIntoConstraints="NO" id="4Pb-e0-38t">
+                            <imageView clipsSubviews="YES" userInteractionEnabled="NO" contentMode="scaleAspectFill" horizontalHuggingPriority="251" verticalHuggingPriority="251" fixedFrame="YES" translatesAutoresizingMaskIntoConstraints="NO" id="4Pb-e0-38t">
                                 <rect key="frame" x="0.0" y="0.0" width="380" height="168"/>
                                 <autoresizingMask key="autoresizingMask" flexibleMaxX="YES" flexibleMaxY="YES"/>
                             </imageView>
@@ -94,7 +94,6 @@
     </objects>
     <resources>
         <image name="Date_icon" width="25" height="25.333333969116211"/>
-        <image name="Football" width="400" height="186.66667175292969"/>
         <image name="Location_icon" width="24" height="22.333333969116211"/>
     </resources>
 </document>

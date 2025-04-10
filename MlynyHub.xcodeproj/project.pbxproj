@@ -13,6 +13,7 @@
 		E9288E532D739E7E00ABC717 /* FirebaseCore in Frameworks */ = {isa = PBXBuildFile; productRef = E9288E522D739E7E00ABC717 /* FirebaseCore */; };
 		E9288E552D739E7E00ABC717 /* FirebaseFirestore in Frameworks */ = {isa = PBXBuildFile; productRef = E9288E542D739E7E00ABC717 /* FirebaseFirestore */; };
 		E9288E572D739E7E00ABC717 /* FirebaseMessaging in Frameworks */ = {isa = PBXBuildFile; productRef = E9288E562D739E7E00ABC717 /* FirebaseMessaging */; };
+		E9D72FD22DA73DD900A1CA71 /* FirebaseStorage in Frameworks */ = {isa = PBXBuildFile; productRef = E9D72FD12DA73DD900A1CA71 /* FirebaseStorage */; };
 /* End PBXBuildFile section */
 
 /* Begin PBXContainerItemProxy section */
@@ -103,6 +104,7 @@
 				E9288E532D739E7E00ABC717 /* FirebaseCore in Frameworks */,
 				E9288E512D739E7E00ABC717 /* FirebaseAuth in Frameworks */,
 				E9288E552D739E7E00ABC717 /* FirebaseFirestore in Frameworks */,
+				E9D72FD22DA73DD900A1CA71 /* FirebaseStorage in Frameworks */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -177,6 +179,7 @@
 				E9288E542D739E7E00ABC717 /* FirebaseFirestore */,
 				E9288E562D739E7E00ABC717 /* FirebaseMessaging */,
 				519EF7C12D7DD87C00457DBD /* IQKeyboardManagerSwift */,
+				E9D72FD12DA73DD900A1CA71 /* FirebaseStorage */,
 			);
 			productName = MlynyHub;
 			productReference = E938ACA72D72418200F8F31E /* MlynyHub.app */;
@@ -348,9 +351,10 @@
 				CLANG_ENABLE_MODULES = YES;
 				CODE_SIGN_STYLE = Automatic;
 				CURRENT_PROJECT_VERSION = 1;
-				DEVELOPMENT_TEAM = 4FMQ6YC74V;
+				DEVELOPMENT_TEAM = VHFJG97A4L;
 				GENERATE_INFOPLIST_FILE = YES;
 				INFOPLIST_FILE = MlynyHub/Info.plist;
+				INFOPLIST_KEY_NSLocationWhenInUseUsageDescription = "We need your location to select event place.";
 				INFOPLIST_KEY_UIApplicationSupportsIndirectInputEvents = YES;
 				INFOPLIST_KEY_UILaunchStoryboardName = LaunchScreen;
 				INFOPLIST_KEY_UIMainStoryboardFile = Main;
@@ -378,9 +382,10 @@
 				CLANG_ENABLE_MODULES = YES;
 				CODE_SIGN_STYLE = Automatic;
 				CURRENT_PROJECT_VERSION = 1;
-				DEVELOPMENT_TEAM = 4FMQ6YC74V;
+				DEVELOPMENT_TEAM = VHFJG97A4L;
 				GENERATE_INFOPLIST_FILE = YES;
 				INFOPLIST_FILE = MlynyHub/Info.plist;
+				INFOPLIST_KEY_NSLocationWhenInUseUsageDescription = "We need your location to select event place.";
 				INFOPLIST_KEY_UIApplicationSupportsIndirectInputEvents = YES;
 				INFOPLIST_KEY_UILaunchStoryboardName = LaunchScreen;
 				INFOPLIST_KEY_UIMainStoryboardFile = Main;
@@ -680,6 +685,11 @@
 			isa = XCSwiftPackageProductDependency;
 			package = E9288DC92D73948F00ABC717 /* XCRemoteSwiftPackageReference "firebase-ios-sdk" */;
 			productName = FirebaseMessaging;
+		};
+		E9D72FD12DA73DD900A1CA71 /* FirebaseStorage */ = {
+			isa = XCSwiftPackageProductDependency;
+			package = E9288DC92D73948F00ABC717 /* XCRemoteSwiftPackageReference "firebase-ios-sdk" */;
+			productName = FirebaseStorage;
 		};
 /* End XCSwiftPackageProductDependency section */
 	};

@@ -5,6 +5,8 @@
 //  Created by Andrej Kazimir on 18/03/2025.
 //
 
+
+// PARAMETRE EVENTU
 import Foundation
 
 struct Event_entry {
@@ -13,4 +15,5 @@ struct Event_entry {
     var max_slots : Int
     var filled_slots : Int
     var Date : String
+    var Image_url : String
 }

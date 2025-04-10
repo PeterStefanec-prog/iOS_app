@@ -6,8 +6,6 @@
 //
 
 
-
-
 import UIKit
 import FirebaseAuth
 import FirebaseFirestore
@@ -54,9 +52,19 @@ extension AllEventsViewController : UITableViewDataSource {
         return events.count
     }
     
+    
     func tableView(_ tableView: UITableView, cellForRowAt indexPath: IndexPath) -> UITableViewCell {
         let cell = tableView.dequeueReusableCell(withIdentifier: "Reusable_cell", for: indexPath) as! Event_cell
-        cell.Event_name.text = events [indexPath.row].Title
+        let event = events[indexPath.row]
+        cell.Event_name.text = event.Title
+
+        // Načítanie obrázka ak je k dispozícii
+        if !event.Image_url.isEmpty {
+            cell.Event_image.loadFrom(urlString: event.Image_url)
+        } else {
+            cell.Event_image.image = nil  // Alebo zobrazenie placeholder
+        }
+        
         cell.selectionStyle = .none
         return cell
     }
@@ -70,7 +78,7 @@ extension AllEventsViewController : UITableViewDataSource {
                 return
             }
             self.events.removeAll()
-            // ✅ Zachová len prvý prvok (logo), ale odstráni všetky eventy
+            // Zachová len prvý prvok (logo), ale odstráni všetky eventy
             //let logo_event = Event_entry(Title: "Lobogo", Description: "", max_slots: 0, filled_slots: 0, Date: "")
             for document in querySnapshot!.documents {
                 let data = document.data()
@@ -80,12 +88,13 @@ extension AllEventsViewController : UITableViewDataSource {
                 let filledSlots = data["Filled slots"] as? Int ?? 0
                 let dateTimestamp = data["Date"] as? Timestamp
                 let dateString = dateTimestamp?.dateValue().description ?? ""
+                let image_url_storage = data["ImageURL"] as? String ?? ""
 
-                let event = Event_entry(Title: title, Description: description, max_slots: maxSlots, filled_slots: filledSlots, Date: dateString)
+                let event = Event_entry(Title: title, Description: description, max_slots: maxSlots, filled_slots: filledSlots, Date: dateString, Image_url: image_url_storage)
                 self.events.append(event)
             }
             print (self.events.count)
-            // 🔄 Aktualizuj tabuľku
+            // Aktualizuj tabuľku
             DispatchQueue.main.async {
                 self.Event_table_view.reloadData()
             }
@@ -100,5 +109,19 @@ extension AllEventsViewController : UITableViewDataSource {
 extension AllEventsViewController: UITableViewDelegate {
     func tableView(_ tableView: UITableView, didSelectRowAt indexPath: IndexPath) {
         print (indexPath.row)
+    }
+}
+
+
+extension UIImageView {
+    func loadFrom(urlString: String) {
+        guard let url = URL(string: urlString) else { return }
+        DispatchQueue.global().async { [weak self] in
+            if let data = try? Data(contentsOf: url), let image = UIImage(data: data) {
+                DispatchQueue.main.async {
+                    self?.image = image
+                }
+            }
+        }
     }
 }

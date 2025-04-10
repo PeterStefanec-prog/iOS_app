@@ -7,6 +7,7 @@
 
 import UIKit
 import FirebaseFirestore
+import FirebaseStorage
 import MapKit
 
 class Add_event_view_controller: UIViewController {
@@ -17,8 +18,15 @@ class Add_event_view_controller: UIViewController {
     @IBOutlet weak var Event_participants_stepper: UIStepper!
     @IBOutlet weak var Event_date_input: UIDatePicker!
     
+    // outlet pre image pri vytvarani eventu
+    @IBOutlet weak var eventImageView: UIImageView!
+    
+    
     var selectedLatitude: Double?
     var selectedLongitude: Double?
+    
+    // Keep the selected image in a variable
+    var selectedImage: UIImage?
     
     override func viewDidLoad() {
         super.viewDidLoad()
@@ -35,8 +43,18 @@ class Add_event_view_controller: UIViewController {
         Participant_slots_input.text = "\(Int(sender.value))"
     }
     
+    // MARK: - Image Picker Functionality
+    @IBAction func select_image(_ sender: UIButton) {
+        // Create and present the image picker
+        let imagePicker = UIImagePickerController()
+        imagePicker.delegate = self
+        imagePicker.sourceType = .photoLibrary  // or .camera if you want to allow taking photos
+        present(imagePicker, animated: true, completion: nil)
+    }
+    
+    // MARK: - Create Event Action - ending this screen
     @IBAction func Create_event_button(_ sender: UIButton) {
-        // kontrola ci su vsetky atributy eventu zadane
+        // Validate required fields
         guard let title = Event_title_input.text, !title.isEmpty,
               let description = Description_title_input.text, !description.isEmpty,
               let participantSlotsText = Participant_slots_input.text, !participantSlotsText.isEmpty,
@@ -49,29 +67,103 @@ class Add_event_view_controller: UIViewController {
             return
         }
         
-        // datum
         let eventDate = Event_date_input.date
         
-        // Debug printy pre kontrolu
+        // Debug prints
         print("Title: \(title)")
         print("Description: \(description)")
         print("Participants: \(participantSlots)")
         print("Date: \(eventDate)")
         
-        // upload event do firestore
+        // Upload image if selected, then create event in Firestore
+        if let image = selectedImage {
+            uploadImage(image) { [weak self] imageUrl in
+                self?.uploadEvent(title: title,
+                                  description: description,
+                                  participantSlots: participantSlots,
+                                  eventDate: eventDate,
+                                  latitude: latitude,
+                                  longitude: longitude,
+                                  imageUrl: imageUrl)
+            }
+        } else {
+            // No image, just create event
+            uploadEvent(title: title,
+                        description: description,
+                        participantSlots: participantSlots,
+                        eventDate: eventDate,
+                        latitude: latitude,
+                        longitude: longitude,
+                        imageUrl: nil)
+        }
+    }
+    
+    // Function to upload event data to Firestore
+    private func uploadEvent(title: String,
+                             description: String,
+                             participantSlots: Int,
+                             eventDate: Date,
+                             latitude: Double,
+                             longitude: Double,
+                             imageUrl: String?) {
         let db = Firestore.firestore()
-        db.collection("Events").addDocument(data: [
+        
+        var eventData: [String: Any] = [
             "Title": title,
             "Description": description,
             "Participant slots": participantSlots,
-            "Filled slots": 0,  // Predvolene 0 účastníkov
+            "Filled slots": 0,
             "Date": Timestamp(date: eventDate),
-            "Location": [latitude,longitude]
-        ]) { error in
+            "Location": [latitude, longitude]
+        ]
+        
+        // Add the image URL if available
+        if let imageUrl = imageUrl {
+            eventData["ImageURL"] = imageUrl
+        }
+        
+        db.collection("Events").addDocument(data: eventData) { error in
             if let error = error {
                 print("Error adding document: \(error.localizedDescription)")
             } else {
                 print("Event successfully added!")
+            }
+        }
+    }
+    
+    // Function to upload an image to Firebase Storage
+    private func uploadImage(_ image: UIImage, completion: @escaping (_ imageUrl: String?) -> Void) {
+        guard let imageData = image.jpegData(compressionQuality: 0.8) else {
+            print("Error compressing image.")
+            completion(nil)
+            return
+        }
+        
+        // Create a unique image name using a UUID
+        let imageName = UUID().uuidString
+        let storageRef = Storage.storage().reference().child("event_images/\(imageName).jpg")
+        
+        let metadata = StorageMetadata()
+        metadata.contentType = "image/jpeg"
+        
+        storageRef.putData(imageData, metadata: metadata) { (_, error) in
+            if let error = error {
+                print("Error uploading image: \(error.localizedDescription)")
+                completion(nil)
+                return
+            }
+            // Retrieve the download URL for the uploaded image
+            storageRef.downloadURL { url, error in
+                if let error = error {
+                    print("Error getting download URL: \(error.localizedDescription)")
+                    completion(nil)
+                    return
+                }
+                guard let downloadURL = url else {
+                    completion(nil)
+                    return
+                }
+                completion(downloadURL.absoluteString)
             }
         }
     }
@@ -87,6 +179,29 @@ class Add_event_view_controller: UIViewController {
     
 }
 
+
+
+// MARK: - UIImagePickerControllerDelegate, UINavigationControllerDelegate
+extension Add_event_view_controller: UIImagePickerControllerDelegate, UINavigationControllerDelegate {
+    
+    // Called when an image is selected
+    func imagePickerController(_ picker: UIImagePickerController, didFinishPickingMediaWithInfo info: [UIImagePickerController.InfoKey: Any]) {
+        picker.dismiss(animated: true)
+        
+        if let image = info[.originalImage] as? UIImage {
+            selectedImage = image
+            eventImageView.image = image  // Update your image view
+            print("Image selected")
+        }
+    }
+    
+    // Handle cancellation
+    func imagePickerControllerDidCancel(_ picker: UIImagePickerController) {
+        picker.dismiss(animated: true)
+    }
+}
+
+// MARK: - LocationPickerDelegate
 extension Add_event_view_controller: LocationPickerDelegate {
     func didSelectLocation(latitude: Double, longitude: Double, address: String) {
         self.selectedLatitude = latitude
@@ -94,4 +209,3 @@ extension Add_event_view_controller: LocationPickerDelegate {
         print("Vybraná lokácia: \(latitude), \(longitude) - Adresa: \(address)")
     }
 }
-
