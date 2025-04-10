@@ -43,16 +43,17 @@ class Add_event_view_controller: UIViewController {
         Participant_slots_input.text = "\(Int(sender.value))"
     }
     
-    // MARK: - Image Picker Functionality
+    // MARK: - User clicked on select image
     @IBAction func select_image(_ sender: UIButton) {
-        // Create and present the image picker
+        // Create and present the image picker object
         let imagePicker = UIImagePickerController()
         imagePicker.delegate = self
-        imagePicker.sourceType = .photoLibrary  // or .camera if you want to allow taking photos
+        imagePicker.sourceType = .photoLibrary  // or camera maybe ?
         present(imagePicker, animated: true, completion: nil)
     }
     
-    // MARK: - Create Event Action - ending this screen
+    
+    // MARK: - Create Event Action - ending this screen - event created - maybe / maybe not succesfully
     @IBAction func Create_event_button(_ sender: UIButton) {
         // Validate required fields
         guard let title = Event_title_input.text, !title.isEmpty,
@@ -60,10 +61,11 @@ class Add_event_view_controller: UIViewController {
               let participantSlotsText = Participant_slots_input.text, !participantSlotsText.isEmpty,
               let participantSlots = Int(participantSlotsText),
               let longitude = selectedLongitude,
-              let latitude = selectedLatitude
+              let latitude = selectedLatitude,
+              let image = selectedImage
         else {
             showAlert(title: "Chýbajúce vlastnosti eventu",
-                      message: "Doplň vlastnosti eventu. Musí obsahovať názov, popis, počet účastníkov, dátum a miesto!")
+                      message: "Doplň vlastnosti eventu. Musí obsahovať názov, popis, počet účastníkov, dátum, miesto a fotografiu!")
             return
         }
         
@@ -77,7 +79,7 @@ class Add_event_view_controller: UIViewController {
         
         // Upload image if selected, then create event in Firestore
         if let image = selectedImage {
-            uploadImage(image) { [weak self] imageUrl in
+            uploadImage(image) { [weak self] imageUrl in    // closure ktory sa zavola po uspesnom nahrati
                 self?.uploadEvent(title: title,
                                   description: description,
                                   participantSlots: participantSlots,
@@ -86,15 +88,6 @@ class Add_event_view_controller: UIViewController {
                                   longitude: longitude,
                                   imageUrl: imageUrl)
             }
-        } else {
-            // No image, just create event
-            uploadEvent(title: title,
-                        description: description,
-                        participantSlots: participantSlots,
-                        eventDate: eventDate,
-                        latitude: latitude,
-                        longitude: longitude,
-                        imageUrl: nil)
         }
     }
     
@@ -133,7 +126,7 @@ class Add_event_view_controller: UIViewController {
     
     // Function to upload an image to Firebase Storage
     private func uploadImage(_ image: UIImage, completion: @escaping (_ imageUrl: String?) -> Void) {
-        guard let imageData = image.jpegData(compressionQuality: 0.8) else {
+        guard let imageData = image.jpegData(compressionQuality: 0.6) else {    // prevedenie obrazku na jpeg
             print("Error compressing image.")
             completion(nil)
             return
@@ -141,7 +134,7 @@ class Add_event_view_controller: UIViewController {
         
         // Create a unique image name using a UUID
         let imageName = UUID().uuidString
-        let storageRef = Storage.storage().reference().child("event_images/\(imageName).jpg")
+        let storageRef = Storage.storage().reference().child("event_images/\(imageName).jpg")   // referencia na obrazok ktory sa prida
         
         let metadata = StorageMetadata()
         metadata.contentType = "image/jpeg"
@@ -168,6 +161,7 @@ class Add_event_view_controller: UIViewController {
         }
     }
     
+    // MARK: - Opens map to choose location
     @IBAction func Open_map(_ sender: UIButton) {
         let storyboard = UIStoryboard(name: "Main", bundle: nil)
         //segue
@@ -182,20 +176,21 @@ class Add_event_view_controller: UIViewController {
 
 
 // MARK: - UIImagePickerControllerDelegate, UINavigationControllerDelegate
+// I tell system that i can react to UIIMagePickerController when it does something - it calls these functions
 extension Add_event_view_controller: UIImagePickerControllerDelegate, UINavigationControllerDelegate {
     
     // Called when an image is selected
     func imagePickerController(_ picker: UIImagePickerController, didFinishPickingMediaWithInfo info: [UIImagePickerController.InfoKey: Any]) {
         picker.dismiss(animated: true)
         
-        if let image = info[.originalImage] as? UIImage {
-            selectedImage = image
-            eventImageView.image = image  // Update your image view
+        if let image = info[.originalImage] as? UIImage {   // info[.originImage] - gets image from gallery
+            selectedImage = image   // just setting variable in my class
+            eventImageView.image = image  // updatne image view
             print("Image selected")
         }
     }
     
-    // Handle cancellation
+    // Handle cancellation - instancia UIImageController ktory bol zobrazeny
     func imagePickerControllerDidCancel(_ picker: UIImagePickerController) {
         picker.dismiss(animated: true)
     }
