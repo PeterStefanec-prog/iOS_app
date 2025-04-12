@@ -82,14 +82,14 @@
             <color key="backgroundColor" white="0.0" alpha="0.0" colorSpace="custom" customColorSpace="genericGamma22GrayColorSpace"/>
             <connections>
                 <outlet property="Background_frame" destination="6TD-nv-bPA" id="1za-b6-zJE"/>
-                <outlet property="Event_date" destination="vft-qq-bM0" id="ZOs-ll-Qha"/>
+                <outlet property="Event_date" destination="vft-qq-bM0" id="QeQ-8e-oCw"/>
                 <outlet property="Event_image" destination="4Pb-e0-38t" id="Y32-oc-KeQ"/>
                 <outlet property="Event_location" destination="PoF-f2-ejx" id="bXs-y0-C6I"/>
                 <outlet property="Event_name" destination="bBC-7a-hpe" id="mIn-zz-vE8"/>
                 <outlet property="Event_slots" destination="0eT-af-tuO" id="wFo-9B-7H6"/>
                 <outlet property="Logo_image" destination="n9s-au-4bL" id="ZxY-a4-A2y"/>
             </connections>
-            <point key="canvasLocation" x="138.93129770992365" y="-57.04225352112676"/>
+            <point key="canvasLocation" x="145" y="-3"/>
         </tableViewCell>
     </objects>
     <resources>

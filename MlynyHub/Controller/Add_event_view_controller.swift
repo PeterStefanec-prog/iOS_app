@@ -9,6 +9,7 @@ import UIKit
 import FirebaseFirestore
 import FirebaseStorage
 import MapKit
+import FirebaseAuth
 
 class Add_event_view_controller: UIViewController {
 
@@ -21,18 +22,17 @@ class Add_event_view_controller: UIViewController {
     // outlet pre image pri vytvarani eventu
     @IBOutlet weak var eventImageView: UIImageView!
     
-    
     var selectedLatitude: Double?
     var selectedLongitude: Double?
     
-    // Keep the selected image in a variable
+    // selected image in variable
     var selectedImage: UIImage?
     
     override func viewDidLoad() {
         super.viewDidLoad()
         
         //restrikcie pre pocet ucastnikov
-        Event_participants_stepper.minimumValue = 3
+        Event_participants_stepper.minimumValue = 2
         Event_participants_stepper.maximumValue = 100
         Event_participants_stepper.stepValue = 1
         Event_participants_stepper.value = 5
@@ -45,17 +45,15 @@ class Add_event_view_controller: UIViewController {
     
     // MARK: - User clicked on select image
     @IBAction func select_image(_ sender: UIButton) {
-        // Create and present the image picker object
         let imagePicker = UIImagePickerController()
         imagePicker.delegate = self
-        imagePicker.sourceType = .photoLibrary  // or camera maybe ?
+        imagePicker.sourceType = .photoLibrary  // or .camera
         present(imagePicker, animated: true, completion: nil)
     }
     
-    
-    // MARK: - Create Event Action - ending this screen - event created - maybe / maybe not succesfully
+    // MARK: - Create Event Action
     @IBAction func Create_event_button(_ sender: UIButton) {
-        // Validate required fields
+        // guard - if condition is not true then it instantly executes else { } block
         guard let title = Event_title_input.text, !title.isEmpty,
               let description = Description_title_input.text, !description.isEmpty,
               let participantSlotsText = Participant_slots_input.text, !participantSlotsText.isEmpty,
@@ -69,6 +67,13 @@ class Add_event_view_controller: UIViewController {
             return
         }
         
+        // is user logged in?? Save him in variable currentUser
+        guard let currentUser = Auth.auth().currentUser else {
+            showAlert(title: "Chyba", message: "Používateľ nie je prihlásený. Prihláste sa a skúste to znova.")
+            return
+        }
+        
+        // date saved
         let eventDate = Event_date_input.date
         
         // Debug prints
@@ -77,29 +82,34 @@ class Add_event_view_controller: UIViewController {
         print("Participants: \(participantSlots)")
         print("Date: \(eventDate)")
         
-        // Upload image if selected, then create event in Firestore
-        if let image = selectedImage {
-            uploadImage(image) { [weak self] imageUrl in    // closure ktory sa zavola po uspesnom nahrati
-                self?.uploadEvent(title: title,
-                                  description: description,
-                                  participantSlots: participantSlots,
-                                  eventDate: eventDate,
-                                  latitude: latitude,
-                                  longitude: longitude,
-                                  imageUrl: imageUrl)
-            }
+        // uploading image - if image uploaded and returned imageURL -> upload event in completion handler
+        uploadImage(image) { [weak self] imageUrl in
+            self?.uploadEvent(
+                title: title,
+                description: description,
+                participantSlots: participantSlots,
+                eventDate: eventDate,
+                latitude: latitude,
+                longitude: longitude,
+                imageUrl: imageUrl,
+                adminUser: currentUser
+            )
         }
     }
     
-    // Function to upload event data to Firestore
+    // Function to upload event data to Firestore after uploaded image to Storage properly - called after upload image succesfully
     private func uploadEvent(title: String,
                              description: String,
                              participantSlots: Int,
                              eventDate: Date,
                              latitude: Double,
                              longitude: Double,
-                             imageUrl: String?) {
+                             imageUrl: String?,
+                             adminUser: User) {
         let db = Firestore.firestore()
+        
+        // Create a reference by UID to the admin's document in the Users firebase collection
+        let adminRef = db.collection("users").document(adminUser.uid)
         
         var eventData: [String: Any] = [
             "Title": title,
@@ -107,45 +117,52 @@ class Add_event_view_controller: UIViewController {
             "Participant slots": participantSlots,
             "Filled slots": 0,
             "Date": Timestamp(date: eventDate),
-            "Location": [latitude, longitude]
+            "Location": [latitude, longitude],
+            "Admin": adminRef
         ]
         
-        // Add the image URL if available
-        if let imageUrl = imageUrl {
-            eventData["ImageURL"] = imageUrl
+        if let image_Url = imageUrl {
+            eventData["ImageURL"] = image_Url
         }
         
-        db.collection("Events").addDocument(data: eventData) { error in
+        // upload event to the database
+        db.collection("Events").addDocument(data: eventData) { [weak self] error in
             if let error = error {
                 print("Error adding document: \(error.localizedDescription)")
+                self?.showAlert(title: "Chyba", message: "Nepodarilo sa vytvoriť event. Skús to znova.")
             } else {
                 print("Event successfully added!")
+                self?.showAlert(title: "Úspech", message: "Event bol úspešne vytvorený!")
+                self?.resetForm()
             }
         }
+
     }
     
     // Function to upload an image to Firebase Storage
     private func uploadImage(_ image: UIImage, completion: @escaping (_ imageUrl: String?) -> Void) {
-        guard let imageData = image.jpegData(compressionQuality: 0.6) else {    // prevedenie obrazku na jpeg
+        // convert image
+        guard let imageData = image.jpegData(compressionQuality: 0.6) else {
             print("Error compressing image.")
             completion(nil)
             return
         }
         
-        // Create a unique image name using a UUID
+        // unique name - generates 128 bit identificator - that is why UUID does not need to be verified by storage - but shit may happen - later
         let imageName = UUID().uuidString
-        let storageRef = Storage.storage().reference().child("event_images/\(imageName).jpg")   // referencia na obrazok ktory sa prida
+        
+        let storageRef = Storage.storage().reference().child("event_images/\(imageName).jpg") // where to store data?
         
         let metadata = StorageMetadata()
-        metadata.contentType = "image/jpeg"
+        metadata.contentType = "image/jpeg" // just for storage to know that it is jpeg
         
         storageRef.putData(imageData, metadata: metadata) { (_, error) in
             if let error = error {
                 print("Error uploading image: \(error.localizedDescription)")
-                completion(nil)
+                self.showAlert(title: "Chyba", message: "Obrazok sa nepodarilo nahrat.")
+                completion(nil) // for completion handler
                 return
             }
-            // Retrieve the download URL for the uploaded image
             storageRef.downloadURL { url, error in
                 if let error = error {
                     print("Error getting download URL: \(error.localizedDescription)")
@@ -156,6 +173,7 @@ class Add_event_view_controller: UIViewController {
                     completion(nil)
                     return
                 }
+                // return url to completion handler
                 completion(downloadURL.absoluteString)
             }
         }
@@ -164,33 +182,45 @@ class Add_event_view_controller: UIViewController {
     // MARK: - Opens map to choose location
     @IBAction func Open_map(_ sender: UIButton) {
         let storyboard = UIStoryboard(name: "Main", bundle: nil)
-        //segue
         if let locationVC = storyboard.instantiateViewController(withIdentifier: "Choose_map_location") as? Pick_location_controller {
-                locationVC.delegate = self //delegat
-                present(locationVC, animated: true)
+            locationVC.delegate = self
+            present(locationVC, animated: true)
         }
+    }
+    
+    
+    // MARK: - Reset function - reset forms in UI
+    private func resetForm() {
+        Event_title_input.text = ""
+        Description_title_input.text = ""
+        Event_participants_stepper.value = 5
+        Participant_slots_input.text = "5"
+        Event_date_input.date = Date()
+        eventImageView.image = nil
+        selectedImage = nil
+        selectedLatitude = nil
+        selectedLongitude = nil
     }
     
 }
 
+// MARK: - Start of extensions
 
 
 // MARK: - UIImagePickerControllerDelegate, UINavigationControllerDelegate
-// I tell system that i can react to UIIMagePickerController when it does something - it calls these functions
 extension Add_event_view_controller: UIImagePickerControllerDelegate, UINavigationControllerDelegate {
-    
-    // Called when an image is selected
-    func imagePickerController(_ picker: UIImagePickerController, didFinishPickingMediaWithInfo info: [UIImagePickerController.InfoKey: Any]) {
+    // this function is called after user select the image
+    func imagePickerController(_ picker: UIImagePickerController,
+                               didFinishPickingMediaWithInfo info: [UIImagePickerController.InfoKey: Any]) {
         picker.dismiss(animated: true)
         
-        if let image = info[.originalImage] as? UIImage {   // info[.originImage] - gets image from gallery
-            selectedImage = image   // just setting variable in my class
-            eventImageView.image = image  // updatne image view
+        if let image = info[.originalImage] as? UIImage {
+            selectedImage = image
+            eventImageView.image = image
             print("Image selected")
         }
     }
     
-    // Handle cancellation - instancia UIImageController ktory bol zobrazeny
     func imagePickerControllerDidCancel(_ picker: UIImagePickerController) {
         picker.dismiss(animated: true)
     }

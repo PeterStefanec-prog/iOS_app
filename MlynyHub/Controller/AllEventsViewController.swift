@@ -5,7 +5,6 @@
 //  Created by Peter Štefanec on 01/03/2025.
 //
 
-
 import UIKit
 import FirebaseAuth
 import FirebaseFirestore
@@ -14,10 +13,8 @@ class AllEventsViewController: UIViewController {
 
     @IBOutlet weak var Event_table_view: UITableView!
     
-    
     //pole eventov na testovanie
-    var events :[Event_entry] = []
-    
+    var events: [Event_entry] = []
     
     override func viewDidLoad() {
         super.viewDidLoad()
@@ -29,7 +26,6 @@ class AllEventsViewController: UIViewController {
         fetchEvents()
     }
     
-    
     // Logging out via firebase
     @IBAction func log_out_button_pressed(_ sender: UIBarButtonItem) {
         let firebaseAuth = Auth.auth()
@@ -38,16 +34,15 @@ class AllEventsViewController: UIViewController {
             // Go to the starting screen after logging out
 //            navigationController?.popToRootViewController(animated: true)
             self.performSegue(withIdentifier: "log_out_segue", sender: self)
-
         } catch let signOutError as NSError {
             showAlert(title: "Error signing out", message: NSError.description())
             print("Error signing out: %@", signOutError)
         }
     }
-    
 }
+
 //event_board
-extension AllEventsViewController : UITableViewDataSource {
+extension AllEventsViewController: UITableViewDataSource {
     func tableView(_ tableView: UITableView, numberOfRowsInSection section: Int) -> Int {
         return events.count
     }
@@ -68,7 +63,6 @@ extension AllEventsViewController : UITableViewDataSource {
         cell.selectionStyle = .none
         return cell
     }
-
     
     func fetchEvents() {
         let db = Firestore.firestore()
@@ -78,8 +72,6 @@ extension AllEventsViewController : UITableViewDataSource {
                 return
             }
             self.events.removeAll()
-            // Zachová len prvý prvok (logo), ale odstráni všetky eventy
-            //let logo_event = Event_entry(Title: "Lobogo", Description: "", max_slots: 0, filled_slots: 0, Date: "")
             for document in querySnapshot!.documents {
                 let data = document.data()
                 let title = data["Title"] as? String ?? "Bez názvu"
@@ -89,39 +81,59 @@ extension AllEventsViewController : UITableViewDataSource {
                 let dateTimestamp = data["Date"] as? Timestamp
                 let dateString = dateTimestamp?.dateValue().description ?? ""
                 let image_url_storage = data["ImageURL"] as? String ?? ""
+                let latitude = data["Latitude"] as? Double ?? 0
+                let longitude = data["Longitude"] as? Double ?? 0
 
-                let event = Event_entry(Title: title, Description: description, max_slots: maxSlots, filled_slots: filledSlots, Date: dateString, Image_url: image_url_storage)
+                // Create event by including the document id as eventId
+                let event = Event_entry(
+                    eventId: document.documentID,
+                    Title: title,
+                    Description: description,
+                    max_slots: maxSlots,
+                    filled_slots: filledSlots,
+                    Date: dateString,
+                    Image_url: image_url_storage,
+                    latitude: latitude,
+                    longitude: longitude
+                )
                 self.events.append(event)
             }
-            print (self.events.count)
-            // Aktualizuj tabuľku
+            print(self.events.count)
             DispatchQueue.main.async {
                 self.Event_table_view.reloadData()
             }
         }
     }
-
-
-
-
     
-}
-extension AllEventsViewController: UITableViewDelegate {
-    func tableView(_ tableView: UITableView, didSelectRowAt indexPath: IndexPath) {
-        print (indexPath.row)
-    }
-}
-
-
-extension UIImageView {
-    func loadFrom(urlString: String) {
-        guard let url = URL(string: urlString) else { return }
-        DispatchQueue.global().async { [weak self] in
-            if let data = try? Data(contentsOf: url), let image = UIImage(data: data) {
-                DispatchQueue.main.async {
-                    self?.image = image
-                }
+    // MARK: send actual event to the Evetn_detail_controller
+    override func prepare(for segue: UIStoryboardSegue, sender: Any?) {
+        if segue.identifier == "Go_to_event_detail" {
+            // 'sender' should be the indexPath passed from didSelectRowAt
+            if let indexPath = sender as? IndexPath,
+               let detailVC = segue.destination as? Event_detail_controller {
+                
+                let selectedEvent = events[indexPath.row]
+                
+                // Pass the event to the detail controller
+                detailVC.event = selectedEvent
+                print("Passing event to detail:", selectedEvent.Title)
             }
         }
     }
+
 }
+
+extension AllEventsViewController: UITableViewDelegate {
+    // In didSelectRowAt
+    func tableView(_ tableView: UITableView, didSelectRowAt indexPath: IndexPath) {
+        print("Selected event at row: \(indexPath.row)")
+        // Call segue with the indexPath as sender
+        performSegue(withIdentifier: "Go_to_event_detail", sender: indexPath)
+    }
+     
+}
+
+
+
+
+

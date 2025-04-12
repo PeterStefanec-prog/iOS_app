@@ -10,10 +10,13 @@
 import Foundation
 
 struct Event_entry {
-    var Title : String
-    var Description : String
-    var max_slots : Int
-    var filled_slots : Int
-    var Date : String
-    var Image_url : String
+    var eventId: String      //  Firestore document ID
+    var Title: String
+    var Description: String
+    var max_slots: Int
+    var filled_slots: Int
+    var Date: String
+    var Image_url: String
+    var latitude: Double
+    var longitude: Double
 }

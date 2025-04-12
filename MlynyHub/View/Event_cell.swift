@@ -17,6 +17,7 @@ class Event_cell: UITableViewCell {
     @IBOutlet weak var Logo_image: UIImageView!
     @IBOutlet weak var Event_location: UILabel!
     @IBOutlet weak var Event_date: UILabel!
+    
     override func awakeFromNib() {
         super.awakeFromNib()
         // Initialization code
