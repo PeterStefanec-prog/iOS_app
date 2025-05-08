@@ -11,6 +11,32 @@ import FirebaseAuth
 class SceneDelegate: UIResponder, UIWindowSceneDelegate {
 
     var window: UIWindow?
+    
+    // 1) indikator view
+    // ––––––––––––––––––––––––––––––––––––––––––––––––––––––––––
+    // — bublina + label
+    private let statusBubble: UIView = {
+        let v = UIView()
+        v.translatesAutoresizingMaskIntoConstraints = false
+        v.layer.cornerRadius = 10
+        v.layer.shadowColor = UIColor.black.cgColor
+        v.layer.shadowOpacity = 0.15
+        v.layer.shadowOffset = .init(width: 0, height: 2)
+        v.layer.shadowRadius = 4
+        // Na začiatku hidden
+        v.alpha = 0
+        return v
+    }()
+    
+    private let statusLabel: UILabel = {
+        let lbl = UILabel()
+        lbl.translatesAutoresizingMaskIntoConstraints = false
+        lbl.font = .systemFont(ofSize: 11, weight: .medium)
+        lbl.textColor = .white
+        lbl.textAlignment = .center
+        return lbl
+    }()
+    // ––––––––––––––––––––––––––––––––––––––––––––––––––––––––––
 
 
     func scene(_ scene: UIScene, willConnectTo session: UISceneSession, options connectionOptions: UIScene.ConnectionOptions) {
@@ -41,6 +67,9 @@ class SceneDelegate: UIResponder, UIWindowSceneDelegate {
                 // Set the navigation controller as the window's root - important because of navigation bar - it manages a stack of controllers so it'll know that the back button does
                 window?.rootViewController = navController
                 window?.makeKeyAndVisible()
+        
+                // 3) konfiguracia indikátora
+                setupStatusBubble()
             }
 
     func sceneDidDisconnect(_ scene: UIScene) {
@@ -71,6 +100,57 @@ class SceneDelegate: UIResponder, UIWindowSceneDelegate {
         // to restore the scene back to its current state.
     }
 
+    
+    private func setupStatusBubble() {
+            guard let window = window else { return }
+            
+            // 1) pridáme bublinu
+            window.addSubview(statusBubble)
+            statusBubble.addSubview(statusLabel)
 
-}
+            NSLayoutConstraint.activate([
+                statusBubble.centerXAnchor.constraint(equalTo: window.centerXAnchor),
+                statusBubble.topAnchor.constraint(equalTo: window.safeAreaLayoutGuide.topAnchor, constant: 1),
+                statusBubble.widthAnchor.constraint(equalToConstant: 70),
+                statusBubble.heightAnchor.constraint(equalToConstant: 25),
 
+                statusLabel.leadingAnchor.constraint(equalTo: statusBubble.leadingAnchor, constant: 8),
+                statusLabel.trailingAnchor.constraint(equalTo: statusBubble.trailingAnchor, constant: -8),
+                statusLabel.centerYAnchor.constraint(equalTo: statusBubble.centerYAnchor)
+            ])
+
+            // 2) prihlásime sa na notifikácie, ešte pred startom monitoru
+            NotificationCenter.default.addObserver(
+                self,
+                selector: #selector(networkStatusChanged(_:)),
+                name: NetworkMonitor.statusChangedNotification,
+                object: nil
+            )
+
+            // 3) až teraz spustíme monitor – handler nám pošle initial + každú ďalšiu zmenu
+            NetworkMonitor.shared.start()
+        }
+
+        @objc private func networkStatusChanged(_ notification: Notification) {
+            let isOnline = (notification.object as? Bool) ?? false
+            DispatchQueue.main.async {
+                // najprv aktualizujeme farbu + text
+                self.updateBubble(isOnline: isOnline)
+                // potom jemne prechodom zobrazime bublinu (ak bola hidden)
+                UIView.animate(withDuration: 0.25) {
+                    self.statusBubble.alpha = 1
+                }
+            }
+        }
+
+        private func updateBubble(isOnline: Bool) {
+            let onlineColor  = UIColor(red: 0.20, green: 0.78, blue: 0.56, alpha: 1)
+            let offlineColor = UIColor(red: 0.56, green: 0.56, blue: 0.58, alpha: 1)
+            statusBubble.backgroundColor = isOnline ? onlineColor : offlineColor
+            statusLabel.text = isOnline ? "Online" : "Offline"
+        }
+
+        deinit {
+            NotificationCenter.default.removeObserver(self)
+        }
+    }
