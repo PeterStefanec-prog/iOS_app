@@ -69,38 +69,7 @@ extension AllEventsViewController: UITableViewDataSource {
         // poloha (suradnice)
         // 1) kluc pre cache
         let key = "\(event.latitude),\(event.longitude)"
-        
-        if let cachedAddress = addressCache[key] {
-            // 2a) ak yuz mame v  cache pouzijeme ho
-            cell.Event_location.text = cachedAddress
-        } else {
-            // 2b) Inak spravime reverse geocode
-            let location = CLLocation(latitude: event.latitude,
-                                      longitude: event.longitude)
-            geocoder.reverseGeocodeLocation(location) { [weak self, weak cell] placemarks, error in
-                guard let self = self,
-                      let placemark = placemarks?.first,
-                      error == nil else {
-                    DispatchQueue.main.async {
-                        cell?.Event_location.text = "Unknown location"
-                    }
-                    return
-                }
-                // 3) zlozenie citatelnej adresy
-                let parts: [String?] = [
-                    placemark.thoroughfare,      // ulica
-                    placemark.subThoroughfare,   // cislo
-                    placemark.locality,          // mesto
-                ]
-                let address = parts.compactMap { $0 }.joined(separator: ", ")
-                
-                // 4) ulozime do cache a aktualizujeme cell
-                self.addressCache[key] = address
-                DispatchQueue.main.async {
-                    cell?.Event_location.text = address
-                }
-            }
-        }
+        cell.Event_location.text = addressCache[key] ?? "Načítavam…"
             
         
         // ***************  IMAGE  *************
@@ -149,60 +118,88 @@ extension AllEventsViewController: UITableViewDataSource {
     
     func fetchEvents() {
         let db = Firestore.firestore()
-        db.collection("Events").order(by: "Date", descending: false).addSnapshotListener { querySnapshot, error in
+        db.collection("Events")
+          .order(by: "Date", descending: false)
+          .addSnapshotListener { [weak self] querySnapshot, error in
+            guard let self = self else { return }
             if let error = error {
-                print("Chyba pri načítaní eventov: \(error.localizedDescription)")
-                return
+              print("Chyba pri načítaní eventov: \(error.localizedDescription)")
+              return
             }
-            self.events.removeAll()
+            guard let documents = querySnapshot?.documents else { return }
             
-            
+            // load events into array
             let df = DateFormatter()
             df.dateStyle = .medium
             df.timeStyle = .short
             
             
-            for document in querySnapshot!.documents {
-                let data = document.data()
-                
-                // 1) Timestamp - Date - String
-                var dateString = ""
-                if let ts = data["Date"] as? Timestamp {
-                    dateString = df.string(from: ts.dateValue())
-                }
-                
-                // 2) rozbalime lat, lon z Location pola
-                let loc = data["Location"] as? [Double] ?? []
-                let latitude  = loc.count > 0 ? loc[0] : 0
-                let longitude = loc.count > 1 ? loc[1] : 0
-                
-                let title = data["Title"] as? String ?? "Bez názvu"
-                let description = data["Description"] as? String ?? ""
-                let maxSlots = data["Participant slots"] as? Int ?? 0
-                let filledSlots = data["Filled slots"] as? Int ?? 0
-                let image_url_storage = data["ImageURL"] as? String ?? ""
 
+              self.events = documents.map { doc in
+                  let data = doc.data()
+                  // Timestamp - String
+                  var dateString = ""
+                  if let ts = data["Date"] as? Timestamp {
+                      dateString = df.string(from: ts.dateValue())
+                  }
+                  // Location pole - lat, lon
+                  let loc = data["Location"] as? [Double] ?? []
+                  let latitude  = loc.count > 0 ? loc[0] : 0
+                  let longitude = loc.count > 1 ? loc[1] : 0
 
-                // Create event by including the document id as eventId
-                let event = Event_entry(
-                    eventId: document.documentID,
-                    Title: title,
-                    Description: description,
-                    max_slots: maxSlots,
-                    filled_slots: filledSlots,
-                    Date: dateString,
-                    Image_url: image_url_storage,
-                    latitude: latitude,
-                    longitude: longitude
-                )
-                self.events.append(event)
-            }
-            print(self.events.count)
-            DispatchQueue.main.async {
-                self.Event_table_view.reloadData()
-            }
-        }
-    }
+                  return Event_entry(
+                      eventId: doc.documentID,
+                      Title: data["Title"] as? String ?? "Bez názvu",
+                      Description: data["Description"] as? String ?? "",
+                      max_slots: data["Participant slots"] as? Int ?? 0,
+                      filled_slots: data["Filled slots"] as? Int ?? 0,
+                      Date: dateString,
+                      Image_url: data["ImageURL"] as? String ?? "",
+                      latitude: latitude,
+                      longitude: longitude
+                  )
+              }
+
+              // 2) One-time reverse-geocode for everu unique suradnice
+              let uniqueKeys = Set(self.events.map { "\($0.latitude),\($0.longitude)" })
+              for key in uniqueKeys {
+                  // reteazec na lan a lon
+                  let parts = key.split(separator: ",")
+                  guard parts.count == 2,
+                        let lat = Double(parts[0]),
+                        let lon = Double(parts[1]) else { continue }
+
+                  let location = CLLocation(latitude: lat, longitude: lon)
+                  self.geocoder.reverseGeocodeLocation(location) { placemarks, error in
+                      guard let placemark = placemarks?.first, error == nil else {
+                          return
+                      }
+                      let comps: [String?] = [
+                          placemark.thoroughfare,      // ulica
+                          placemark.subThoroughfare,   // cislo domu
+                          placemark.locality           // mesto
+                      ]
+                      let address = comps.compactMap { $0 }.joined(separator: ", ")
+                      // uloz do cache
+                      self.addressCache[key] = address
+
+                      // find every line which use this key and reload it
+                      let indexPaths = self.events.enumerated()
+                        .filter { "\($0.element.latitude),\($0.element.longitude)" == key }
+                        .map { IndexPath(row: $0.offset, section: 0) }
+
+                      DispatchQueue.main.async {
+                          self.Event_table_view.reloadRows(at: indexPaths, with: .automatic)
+                      }
+                  }
+              }
+
+              // 3) global reload of data
+              DispatchQueue.main.async {
+                  self.Event_table_view.reloadData()
+              }
+          }
+      }
     
     // MARK: send actual event to the Evetn_detail_controller
     override func prepare(for segue: UIStoryboardSegue, sender: Any?) {
