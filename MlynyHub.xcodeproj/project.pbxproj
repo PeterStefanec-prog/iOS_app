@@ -53,6 +53,7 @@
 				Controller/Add_event_view_controller.swift,
 				Controller/Map_all_event_controller.swift,
 				Controller/Pick_location_controller.swift,
+				Controller/ProfileController.swift,
 				View/Event_cell.swift,
 				View/Event_cell.xib,
 			);
@@ -64,6 +65,7 @@
 				Controller/Add_event_view_controller.swift,
 				Controller/Map_all_event_controller.swift,
 				Controller/Pick_location_controller.swift,
+				Controller/ProfileController.swift,
 				View/Event_cell.swift,
 				View/Event_cell.xib,
 			);
