@@ -8,6 +8,7 @@
 import UIKit
 import FirebaseAuth
 import FirebaseFirestore
+import CoreLocation
 
 class MyEventsViewController: UIViewController {
     @IBOutlet weak var tableView: UITableView!
@@ -16,10 +17,14 @@ class MyEventsViewController: UIViewController {
     // imageCache
     private let imageCache = NSCache<NSString, UIImage>()
     
+    // Geocoder + cache for human‐readable addresses
+    private let geocoder = CLGeocoder()
+    private var addressCache: [String:String] = [:]
+    
     // so it will be updated instantly after I participate in event or create new one
     override func viewWillAppear(_ animated: Bool) {
-      super.viewWillAppear(animated)
-      fetchMyEvents()
+        super.viewWillAppear(animated)
+        fetchMyEvents()
     }
     
     override func viewDidLoad() {
@@ -32,6 +37,7 @@ class MyEventsViewController: UIViewController {
         )
         fetchMyEvents()
     }
+    
     
     func fetchMyEvents() {
         guard let user = Auth.auth().currentUser else { return }
@@ -100,6 +106,31 @@ class MyEventsViewController: UIViewController {
         // once both done, update UI
         group.notify(queue: .main) {
             self.events = loadedEvents.sorted { $0.Date < $1.Date }
+            
+            // 1-time reverse-geocode of all unique lat/lon
+            let uniqueKeys = Set(self.events.map { "\($0.latitude),\($0.longitude)" })
+            for key in uniqueKeys {
+                let parts = key.split(separator: ",")
+                guard parts.count == 2,
+                      let lat = Double(parts[0]),
+                      let lon = Double(parts[1]) else { continue }
+                
+                let loc = CLLocation(latitude: lat, longitude: lon)
+                // new geocoder per request
+                CLGeocoder().reverseGeocodeLocation(loc) { placemarks, _ in
+                    guard let p = placemarks?.first else { return }
+                    let comps: [String?] = [p.thoroughfare, p.subThoroughfare, p.locality]
+                    self.addressCache[key] = comps.compactMap { $0 }.joined(separator: ", ")
+                    // reload only affected rows
+                    let rows = self.events.enumerated()
+                        .filter { "\($0.element.latitude),\($0.element.longitude)" == key }
+                        .map { IndexPath(row: $0.offset, section: 0) }
+                    DispatchQueue.main.async {
+                        self.tableView.reloadRows(at: rows, with: .automatic)
+                    }
+                }
+            }
+            
             self.tableView.reloadData()
         }
     }
@@ -121,6 +152,9 @@ extension MyEventsViewController: UITableViewDataSource, UITableViewDelegate {
         // title + date
         cell.Event_name.text = event.Title
         cell.Event_date.text = event.Date
+        // location
+        let key = "\(event.latitude),\(event.longitude)"
+        cell.Event_location.text = addressCache[key] ?? "Načítavam…"
         
         // image loading (copy from AllEventsViewController)
         cell.Event_image.image = nil

@@ -12,7 +12,7 @@ import MapKit
 import FirebaseAuth
 
 class Add_event_view_controller: UIViewController {
-
+    
     @IBOutlet weak var Participant_slots_input: UILabel!
     @IBOutlet weak var Event_title_input: UITextField!
     @IBOutlet weak var Description_title_input: UITextField!
@@ -53,6 +53,9 @@ class Add_event_view_controller: UIViewController {
     
     // MARK: - Create Event Action
     @IBAction func Create_event_button(_ sender: UIButton) {
+        
+        guard ensureOnline() else { return }
+        
         // guard - if condition is not true then it instantly executes else { } block
         guard let title = Event_title_input.text, !title.isEmpty,
               let description = Description_title_input.text, !description.isEmpty,
@@ -136,7 +139,7 @@ class Add_event_view_controller: UIViewController {
                 self?.resetForm()
             }
         }
-
+        
     }
     
     // Function to upload an image to Firebase Storage
@@ -200,6 +203,17 @@ class Add_event_view_controller: UIViewController {
         selectedImage = nil
         selectedLatitude = nil
         selectedLongitude = nil
+    }
+    
+    
+    
+    // MARK: Kontrola siete pred tyjm ako sa spusti hocijaka akcia
+    private func ensureOnline() -> Bool {
+        if !NetworkMonitor.shared.isConnected {
+            showAlert(title: "Offline", message: "Momentálne nie ste pripojení na internet. Skúste to prosím neskôr.")
+            return false
+        }
+        return true
     }
     
 }

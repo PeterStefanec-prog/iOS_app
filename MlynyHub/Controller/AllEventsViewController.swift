@@ -235,8 +235,3 @@ extension AllEventsViewController: UITableViewDelegate {
     }
      
 }
-
-
-
-
-
