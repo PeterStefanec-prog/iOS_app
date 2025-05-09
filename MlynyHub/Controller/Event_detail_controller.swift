@@ -9,7 +9,7 @@ import UIKit
 import FirebaseAuth
 import FirebaseFirestore
 import CoreLocation
-
+import FirebaseStorage
 
 class Event_detail_controller: UIViewController {
     
@@ -200,21 +200,37 @@ class Event_detail_controller: UIViewController {
     }
 
     
-    /// Deletes the event document from Firestore.
+    // Deletes the event document from Firestore. - cascade
     private func deleteEvent() {
         guard let event = event else { return }
-        let db = Firestore.firestore()
+        let db       = Firestore.firestore()
         let eventRef = db.collection("Events").document(event.eventId)
-        eventRef.delete { [weak self] error in
-            if let error = error {
-                print("Error deleting event: \(error.localizedDescription)")
-                return
-            }
-//            self?.showAlert(title: "Uspech", message: "Even uspesne vymazany.")
-            print("Event successfully deleted.")
-            // After deletion, navigate back to the previous screen.
-            self?.navigationController?.popViewController(animated: true)
+        let storage  = Storage.storage()
 
+        // 1) image reference z download URL
+        let imageRef = storage.reference(forURL: event.Image_url)
+
+        // 2) delete phoot
+        imageRef.delete { [weak self] storageError in
+            if let err = storageError {
+                print("Error deleting image:", err.localizedDescription)
+                // continue anyways
+            }
+
+            // 3) delete firestore document
+            eventRef.delete { error in
+                if let error = error {
+                    print("Error deleting event doc:", error.localizedDescription)
+                    self?.showAlert(title: "Chyba", message: "Nepodarilo sa vymazať event.")
+                    return
+                }
+                print("Event and image deleted successfully.")
+                DispatchQueue.main.async {
+                    // After deletion, navigate back to the previous screen.
+                    self?.navigationController?.popViewController(animated: true)
+                    self?.showAlert(title: "Úspech", message: "Event bol úspešne vymazaný.")
+                }
+            }
         }
     }
     
