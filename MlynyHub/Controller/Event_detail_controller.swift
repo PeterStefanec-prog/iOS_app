@@ -35,6 +35,7 @@ class Event_detail_controller: UIViewController {
     private var isAdmin = false
     private var isParticipant = false
     private var participants: [String] = [] // Array of UIDs for the users who have joined
+    private var isEventFull = false
     
     
     override func viewDidLoad() {
@@ -48,7 +49,7 @@ class Event_detail_controller: UIViewController {
         
         // Set the static UI from local event data
         titleLabel.text = event.Title
-        eventLocation.text = String(event.latitude) + ", " + String(event.longitude)    // TODO - normal location name
+        eventLocation.text = String(event.latitude) + ", " + String(event.longitude)    // - normal location name
         descriptionLabel.text = event.Description
         dateLabel.text = event.Date
         // Display the slot count (registered/total) from the locally stored event values.
@@ -60,6 +61,7 @@ class Event_detail_controller: UIViewController {
         }
         
         actionButton.layer.cornerRadius = 10
+        actionButton.isHidden = true // hidden while we identify the state of event - full ..
         
         // 1) keby daco
         eventLocation.text = "Načítavam adresu…"
@@ -102,6 +104,7 @@ class Event_detail_controller: UIViewController {
             let filledSlots = data["Filled slots"] as? Int ?? 0
             let maxSlots = data["Participant slots"] as? Int ?? 0
             self.slotsLabel.text = "\(filledSlots)/\(maxSlots)"
+            self.isEventFull = (filledSlots >= maxSlots) // set when the event is full
             
             // 3. Update the list of participants from Firestore.
             if let participantsArr = data["Participants"] as? [String] {
@@ -119,8 +122,16 @@ class Event_detail_controller: UIViewController {
     }
     
     // MARK: - Configure Action Button Text
-    /// Sets the button title depending on whether the user is admin or has joined.
+    // Sets the button title depending on whether the user is admin or has joined.
     private func configureActionButton() {
+        // is the event full and the user is not admin and not even participant? Do not show the button, there is nothing you can do with event.
+        if isEventFull && !isParticipant && !isAdmin {
+            actionButton.isHidden = true
+            return
+        } else {
+            actionButton.isHidden = false
+        }
+        
         if isAdmin {
             // If the current user is admin then they can delete the event.
             actionButton.setTitle("Delete Event", for: .normal)
@@ -138,8 +149,20 @@ class Event_detail_controller: UIViewController {
         }
     }
     
+    // MARK: Kontrola siete pred tyjm ako sa spusti hocijaka akcia
+    private func ensureOnline() -> Bool {
+        if !NetworkMonitor.shared.isConnected {
+            showAlert(title: "Offline", message: "Momentálne nie ste pripojení na internet. Skúste to prosím neskôr.")
+            return false
+        }
+        return true
+    }
+    
     // MARK: - Action Button Press Handler
     @IBAction func actionButtonTapped(_ sender: UIButton) {
+        // 1) if offline - show alert and return from function
+        guard ensureOnline() else { return }
+        
         if isAdmin {
             // If admin, pressing the button deletes the event.
             confirmDeleteEvent()
