@@ -22,6 +22,9 @@ class AllEventsViewController: UIViewController {
     //pole eventov na testovanie
     var events: [Event_entry] = []
     
+    // image cache
+    private let imageCache = NSCache<NSString, UIImage>()
+    
     override func viewDidLoad() {
         super.viewDidLoad()
         Event_table_view.dataSource = self
@@ -99,13 +102,46 @@ extension AllEventsViewController: UITableViewDataSource {
             }
         }
             
+        
+        // ***************  IMAGE  *************
+        guard !event.Image_url.isEmpty,
+              let url = URL(string: event.Image_url)
+        else { return cell }
 
-        // Načítanie obrázka ak je k dispozícii
-        if !event.Image_url.isEmpty {
-            cell.Event_image.loadFrom(urlString: event.Image_url)
-        } else {
-            cell.Event_image.image = nil  // Alebo zobrazenie placeholder
+        let cacheKey = event.Image_url as NSString
+
+        // 1) gete ready request with cache
+        var request = URLRequest(url: url)
+        request.cachePolicy = .returnCacheDataElseLoad
+        request.timeoutInterval = 60
+
+        let task = URLSession.shared.dataTask(with: request) { [weak self, weak tableView] data, response, error in
+            guard
+              let self = self,
+              let data = data,
+              let image = UIImage(data: data),
+              error == nil
+            else { return }
+
+            // 2) save to in-mem cache
+            self.imageCache.setObject(image, forKey: cacheKey)
+
+            // 3) save downloaded images to URLCache (disk)
+            if let response = response {
+              URLCache.shared.storeCachedResponse(
+                CachedURLResponse(response: response, data: data),
+                for: request
+              )
+            }
+
+            DispatchQueue.main.async {
+              if let currentCell = tableView?
+                .cellForRow(at: indexPath) as? Event_cell {
+                currentCell.Event_image.image = image
+              }
+            }
         }
+        task.resume()
         
         cell.selectionStyle = .none
         return cell
@@ -175,7 +211,14 @@ extension AllEventsViewController: UITableViewDataSource {
             if let indexPath = sender as? IndexPath,
                let detailVC = segue.destination as? Event_detail_controller {
                 
+                // send event model
                 let selectedEvent = events[indexPath.row]
+                detailVC.event = selectedEvent
+
+                // get image and send it
+                if let cell = Event_table_view.cellForRow(at: indexPath) as? Event_cell {
+                    detailVC.passedImage = cell.Event_image.image
+                }
                 
                 // Pass the event to the detail controller
                 detailVC.event = selectedEvent

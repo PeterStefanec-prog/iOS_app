@@ -16,6 +16,7 @@ class Event_detail_controller: UIViewController {
     // This property is set from AllEventsViewController via segue.
     // It should include an eventId property for Firestore operations.
     var event: Event_entry?
+    var passedImage: UIImage?
     
     private let geocoder = CLGeocoder()
     
@@ -55,10 +56,13 @@ class Event_detail_controller: UIViewController {
         // Display the slot count (registered/total) from the locally stored event values.
         slotsLabel.text = "\(event.filled_slots)/\(event.max_slots)"
         
-        // Load and display the event photo if available
-        if !event.Image_url.isEmpty {
+        // Load and display the event photo if available from AllEventsViewController
+        if let image = passedImage {
+            eventImageView.image = image
+        } else if !event.Image_url.isEmpty {
             eventImageView.loadFrom(urlString: event.Image_url)     // assynchronously - defined later below
         }
+
         
         actionButton.layer.cornerRadius = 10
         actionButton.isHidden = true // hidden while we identify the state of event - full ..

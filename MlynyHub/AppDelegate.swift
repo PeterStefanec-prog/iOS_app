@@ -37,6 +37,23 @@ class AppDelegate: UIResponder, UIApplicationDelegate {
                 window?.rootViewController = rootViewController
                 window?.makeKeyAndVisible()
         
+        
+        
+        // ––– Firestore offline persistence (default: true, ale nezabúď zmeniť, ak si to niekde vypol)
+        let settings = FirestoreSettings()
+        settings.cacheSettings = PersistentCacheSettings()
+        Firestore.firestore().settings = settings
+
+        // ––– URLCache na disk (pre fotky)
+        let memCap = 50 * 1024 * 1024    // 50 MB in-memory
+        let diskCap = 200 * 1024 * 1024  // 200 MB on-disk
+        URLCache.shared = URLCache(
+          memoryCapacity: memCap,
+          diskCapacity: diskCap,
+          diskPath: "url_cache"
+        )
+
+        
         return true
     }
 
