@@ -9,6 +9,7 @@ import UIKit
 import FirebaseAuth
 import Firebase
 import IQKeyboardManagerSwift
+import UserNotifications
 
 @main
 class AppDelegate: UIResponder, UIApplicationDelegate {
@@ -53,6 +54,23 @@ class AppDelegate: UIResponder, UIApplicationDelegate {
           diskPath: "url_cache"
         )
 
+        // MARK: –▶ Lokálne notifikácie – žiadosť o povolenie
+        let center = UNUserNotificationCenter.current()
+        center.requestAuthorization(options: [.alert, .sound, .badge]) { granted, error in
+            if let err = error {
+                print("Chyba pri žiadosti o povolenie notifikácií: \(err)")
+            }
+        }
+        
+        // MARK: –▶ Definícia akcie a kategórie
+        let openAction = UNNotificationAction(identifier: "OPEN_EVENT",title: "Zobraziť event",options: [.foreground])
+        
+        let eventCategory = UNNotificationCategory(identifier: "EVENT_REMINDER",actions: [openAction],intentIdentifiers: [],options: [])
+        
+        center.setNotificationCategories([eventCategory])
+
+        // MARK: –▶ Nastav AppDelegate ako UNUserNotificationCenterDelegate
+        center.delegate = self
         
         return true
     }
@@ -76,3 +94,27 @@ class AppDelegate: UIResponder, UIApplicationDelegate {
 
 }
 
+// MARK: –▶ UNUserNotificationCenterDelegate
+extension AppDelegate: UNUserNotificationCenterDelegate {
+  func userNotificationCenter(
+    _ center: UNUserNotificationCenter,
+    didReceive response: UNNotificationResponse,
+    withCompletionHandler completionHandler: @escaping () -> Void
+  ) {
+    let userInfo = response.notification.request.content.userInfo
+    if let eventID = userInfo["eventID"] as? String {
+      // Posli notification, aby SceneDelegate / root VC mohli navigovať
+      NotificationCenter.default.post(
+        name: .didTapEventNotification,
+        object: nil,
+        userInfo: ["eventID": eventID]
+      )
+    }
+    completionHandler()
+  }
+}
+
+// MARK: –▶ Notification.Name helper
+extension Notification.Name {
+  static let didTapEventNotification = Notification.Name("didTapEventNotification")
+}

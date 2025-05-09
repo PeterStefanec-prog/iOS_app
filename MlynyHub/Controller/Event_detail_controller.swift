@@ -10,6 +10,7 @@ import FirebaseAuth
 import FirebaseFirestore
 import CoreLocation
 import FirebaseStorage
+import UserNotifications
 
 class Event_detail_controller: UIViewController {
     
@@ -60,7 +61,7 @@ class Event_detail_controller: UIViewController {
         if let image = passedImage {
             eventImageView.image = image
         } else if !event.Image_url.isEmpty {
-            eventImageView.loadFrom(urlString: event.Image_url)     // assynchronously - defined later below
+            loadImage(urlString: event.Image_url)
         }
 
         
@@ -84,7 +85,10 @@ class Event_detail_controller: UIViewController {
         let db = Firestore.firestore()
         let eventRef = db.collection("Events").document(eventId)
         
-        eventRef.getDocument { [weak self] snapshot, error in
+        // vyber zdroj podľa siete: online = .default, offline = .cache
+        let source: FirestoreSource = NetworkMonitor.shared.isConnected ? .default : .cache
+        
+        eventRef.getDocument(source: source) { [weak self] snapshot, error in
             guard let self = self else { return }
             if let error = error {
                 self.showAlert(title: "Upozornenie", message: "Nie ste pripojeny na internet. Udaje nemusia byt aktualne.")
@@ -133,6 +137,7 @@ class Event_detail_controller: UIViewController {
             actionButton.isHidden = true
             return
         } else {
+            // For non-admin, if the user has joined then offer option to leave; otherwise, join.
             actionButton.isHidden = false
         }
         
@@ -246,14 +251,22 @@ class Event_detail_controller: UIViewController {
             "Filled slots": FieldValue.increment(Int64(1)),
             "Participants": FieldValue.arrayUnion([currentUser.uid])
         ]) { [weak self] error in
+            guard let self = self else { return }
+
             if let error = error {
                 print("Error joining event: \(error.localizedDescription)")
                 return
             }
-            self?.showAlert(title: "Uspech", message: "Uspesne ste sa prihlasili na event")
-            print("Successfully joined the event.")
-            // Re-fetch updated details so the UI gets refreshed.
-            self?.fetchEventDetailsFromFirestore(eventId: event.eventId)
+            self.showAlert(title: "Uspech", message: "Uspesne ste sa prihlasili na event")
+            
+            // Notifikácia 15 min pred začiatkom
+            eventRef.getDocument { snap, _ in
+                guard let ts = snap?.data()?["Date"] as? Timestamp else { return }
+                self.scheduleReminder(forEventID: event.eventId,
+                                      title: event.Title,
+                                      at: ts.dateValue())
+            }
+            self.fetchEventDetailsFromFirestore(eventId: event.eventId)
         }
     }
     
@@ -284,25 +297,73 @@ class Event_detail_controller: UIViewController {
     // ZOBRAZOVANIE LOKACIE
     private func reverseGeocode(latitude: Double, longitude: Double) {
         let location = CLLocation(latitude: latitude, longitude: longitude)
-        geocoder.reverseGeocodeLocation(location) { [weak self] placemarks, error in
-            guard let self = self,
-                  let placemark = placemarks?.first,
-                  error == nil else {
-                DispatchQueue.main.async {
-                    self?.eventLocation.text = "Neznáma poloha"
-                }
-                return
-            }
-            let parts: [String?] = [
-                placemark.thoroughfare,      // ulica
-                placemark.subThoroughfare,   // cislo domu
-                placemark.locality,          // mesto
-            ]
-            let address = parts.compactMap { $0 }.joined(separator: ", ")
-            DispatchQueue.main.async {
-                self.eventLocation.text = address
+        geocoder.reverseGeocodeLocation(location) { [weak self] placemarks, _ in
+            guard let self = self else { return }
+            if let p = placemarks?.first {
+                let parts: [String?] = [
+                    p.thoroughfare,
+                    p.subThoroughfare,
+                    p.locality
+                ]
+                self.eventLocation.text = parts.compactMap { $0 }.joined(separator: ", ")
+            } else {
+                self.eventLocation.text = "Neznáma poloha"
             }
         }
+    }
+
+    // MARK: - Lokálna notifikácia
+    private func scheduleReminder(forEventID id: String, title: String, at startDate: Date) {
+        let content = UNMutableNotificationContent()
+        content.title = "Čoskoro začína event"
+        content.body  = "Event „\(title)“ začne o 15 minút."
+        content.categoryIdentifier = "EVENT_REMINDER"
+        content.userInfo = ["eventID": id]
+
+        let triggerDate = Calendar.current.date(byAdding: .minute, value: -15, to: startDate)!
+        let comps = Calendar.current.dateComponents([.year, .month, .day, .hour, .minute], from: triggerDate)
+        let trigger = UNCalendarNotificationTrigger(dateMatching: comps, repeats: false)
+
+        let req = UNNotificationRequest(identifier: "reminder_\(id)", content: content, trigger: trigger)
+        UNUserNotificationCenter.current().add(req) { error in
+            if let err = error { print("Chyba pri plánovaní notifikácie:", err) }
+        }
+    }
+
+    // MARK: - Image loading (online + offline cache)
+    private func loadImage(urlString: String) {
+        guard let url = URL(string: urlString) else { return }
+
+        var request = URLRequest(url: url)
+        request.timeoutInterval = 60
+        request.cachePolicy = NetworkMonitor.shared.isConnected
+            ? .returnCacheDataElseLoad   // online – skús cache, inak stiahni
+            : .returnCacheDataDontLoad   // offline – iba cache
+
+        // Ak už obrázok máme v URLCache → rovno ho zobraz
+        if let cached = URLCache.shared.cachedResponse(for: request),
+           let img = UIImage(data: cached.data) {
+            eventImageView.image = img
+            return
+        }
+        // V offline režime tu končíme (nemáme čo sťahovať)
+        guard NetworkMonitor.shared.isConnected else { return }
+
+        URLSession.shared.dataTask(with: request) { [weak self] data, response, error in
+            guard let self = self,
+                  let data = data,
+                  let img = UIImage(data: data),
+                  error == nil else { return }
+
+            // Ulož do URLCache
+            if let response = response {
+                URLCache.shared.storeCachedResponse(
+                    CachedURLResponse(response: response, data: data), for: request)
+            }
+            DispatchQueue.main.async {
+                self.eventImageView.image = img
+            }
+        }.resume()
     }
 }
 
