@@ -17,6 +17,8 @@ class Event_detail_controller: UIViewController {
     // It should include an eventId property for Firestore operations.
     var event: Event_entry?
     
+    private let geocoder = CLGeocoder()
+    
     // Outlets for UI elements on the Event detail screen
     @IBOutlet weak var titleLabel: UILabel!
     @IBOutlet weak var dateLabel: UILabel!
@@ -58,6 +60,11 @@ class Event_detail_controller: UIViewController {
         }
         
         actionButton.layer.cornerRadius = 10
+        
+        // 1) keby daco
+        eventLocation.text = "Načítavam adresu…"
+        // 2) Spusti reverse geocoding
+        reverseGeocode(latitude: event.latitude, longitude: event.longitude)
         
         // Fetch the latest details from Firestore (Admin, participants, filled slots, etc.)
         fetchEventDetailsFromFirestore(eventId: event.eventId)
@@ -229,7 +236,36 @@ class Event_detail_controller: UIViewController {
             self?.fetchEventDetailsFromFirestore(eventId: event.eventId)
         }
     }
+    
+    
+    // ZOBRAZOVANIE LOKACIE
+    private func reverseGeocode(latitude: Double, longitude: Double) {
+        let location = CLLocation(latitude: latitude, longitude: longitude)
+        geocoder.reverseGeocodeLocation(location) { [weak self] placemarks, error in
+            guard let self = self,
+                  let placemark = placemarks?.first,
+                  error == nil else {
+                DispatchQueue.main.async {
+                    self?.eventLocation.text = "Neznáma poloha"
+                }
+                return
+            }
+            let parts: [String?] = [
+                placemark.thoroughfare,      // ulica
+                placemark.subThoroughfare,   // cislo domu
+                placemark.locality,          // mesto
+            ]
+            let address = parts.compactMap { $0 }.joined(separator: ", ")
+            DispatchQueue.main.async {
+                self.eventLocation.text = address
+            }
+        }
+    }
 }
+
+
+
+
 
 // MARK: - Asynchronous Image Loading
 extension UIImageView {

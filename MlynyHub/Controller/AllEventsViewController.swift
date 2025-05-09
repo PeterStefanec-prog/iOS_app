@@ -8,10 +8,16 @@
 import UIKit
 import FirebaseAuth
 import FirebaseFirestore
+import CoreLocation
+
 
 class AllEventsViewController: UIViewController {
 
     @IBOutlet weak var Event_table_view: UITableView!
+    
+    /// Geocoder a  in-memory cache na adresy
+    private let geocoder = CLGeocoder()
+    private var addressCache: [String: String] = [:]  // lat a lon bude klucom
     
     //pole eventov na testovanie
     var events: [Event_entry] = []
@@ -52,6 +58,47 @@ extension AllEventsViewController: UITableViewDataSource {
         let cell = tableView.dequeueReusableCell(withIdentifier: "Reusable_cell", for: indexPath) as! Event_cell
         let event = events[indexPath.row]
         cell.Event_name.text = event.Title
+        
+        // cas
+        cell.Event_date.text = event.Date
+        
+        
+        // poloha (suradnice)
+        // 1) kluc pre cache
+        let key = "\(event.latitude),\(event.longitude)"
+        
+        if let cachedAddress = addressCache[key] {
+            // 2a) ak yuz mame v  cache pouzijeme ho
+            cell.Event_location.text = cachedAddress
+        } else {
+            // 2b) Inak spravime reverse geocode
+            let location = CLLocation(latitude: event.latitude,
+                                      longitude: event.longitude)
+            geocoder.reverseGeocodeLocation(location) { [weak self, weak cell] placemarks, error in
+                guard let self = self,
+                      let placemark = placemarks?.first,
+                      error == nil else {
+                    DispatchQueue.main.async {
+                        cell?.Event_location.text = "Unknown location"
+                    }
+                    return
+                }
+                // 3) zlozenie citatelnej adresy
+                let parts: [String?] = [
+                    placemark.thoroughfare,      // ulica
+                    placemark.subThoroughfare,   // cislo
+                    placemark.locality,          // mesto
+                ]
+                let address = parts.compactMap { $0 }.joined(separator: ", ")
+                
+                // 4) ulozime do cache a aktualizujeme cell
+                self.addressCache[key] = address
+                DispatchQueue.main.async {
+                    cell?.Event_location.text = address
+                }
+            }
+        }
+            
 
         // Načítanie obrázka ak je k dispozícii
         if !event.Image_url.isEmpty {
@@ -72,17 +119,33 @@ extension AllEventsViewController: UITableViewDataSource {
                 return
             }
             self.events.removeAll()
+            
+            
+            let df = DateFormatter()
+            df.dateStyle = .medium
+            df.timeStyle = .short
+            
+            
             for document in querySnapshot!.documents {
                 let data = document.data()
+                
+                // 1) Timestamp - Date - String
+                var dateString = ""
+                if let ts = data["Date"] as? Timestamp {
+                    dateString = df.string(from: ts.dateValue())
+                }
+                
+                // 2) rozbalime lat, lon z Location pola
+                let loc = data["Location"] as? [Double] ?? []
+                let latitude  = loc.count > 0 ? loc[0] : 0
+                let longitude = loc.count > 1 ? loc[1] : 0
+                
                 let title = data["Title"] as? String ?? "Bez názvu"
                 let description = data["Description"] as? String ?? ""
                 let maxSlots = data["Participant slots"] as? Int ?? 0
                 let filledSlots = data["Filled slots"] as? Int ?? 0
-                let dateTimestamp = data["Date"] as? Timestamp
-                let dateString = dateTimestamp?.dateValue().description ?? ""
                 let image_url_storage = data["ImageURL"] as? String ?? ""
-                let latitude = data["Latitude"] as? Double ?? 0
-                let longitude = data["Longitude"] as? Double ?? 0
+
 
                 // Create event by including the document id as eventId
                 let event = Event_entry(

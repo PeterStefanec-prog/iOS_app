@@ -142,7 +142,7 @@ class Add_event_view_controller: UIViewController {
     // Function to upload an image to Firebase Storage
     private func uploadImage(_ image: UIImage, completion: @escaping (_ imageUrl: String?) -> Void) {
         // convert image
-        guard let imageData = image.jpegData(compressionQuality: 0.6) else {
+        guard let imageData = image.jpegData(compressionQuality: 0.35) else {
             print("Error compressing image.")
             completion(nil)
             return
