@@ -169,11 +169,11 @@ extension AllEventsViewController: UITableViewDataSource {
                         let lat = Double(parts[0]),
                         let lon = Double(parts[1]) else { continue }
 
-                  let location = CLLocation(latitude: lat, longitude: lon)
-                  self.geocoder.reverseGeocodeLocation(location) { placemarks, error in
-                      guard let placemark = placemarks?.first, error == nil else {
-                          return
-                      }
+                  let loc = CLLocation(latitude: lat, longitude: lon)
+                  // 👇 create a brand-new geocoder for *this* request
+                  CLGeocoder().reverseGeocodeLocation(loc) { placemarks, error in
+                      guard let placemark = placemarks?.first, error == nil else { return }
+                              
                       let comps: [String?] = [
                           placemark.thoroughfare,      // ulica
                           placemark.subThoroughfare,   // cislo domu
