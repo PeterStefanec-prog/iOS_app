@@ -10,6 +10,7 @@ import FirebaseAuth
 import FirebaseFirestore
 import UserNotifications
 
+
 class SceneDelegate: UIResponder, UIWindowSceneDelegate {
 
     var window: UIWindow?

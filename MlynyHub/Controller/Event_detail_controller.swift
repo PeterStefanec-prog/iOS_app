@@ -11,6 +11,8 @@ import FirebaseFirestore
 import CoreLocation
 import FirebaseStorage
 import UserNotifications
+import FirebaseAnalytics
+
 
 class Event_detail_controller: UIViewController {
     
@@ -240,6 +242,9 @@ class Event_detail_controller: UIViewController {
                     self?.showAlert(title: "Chyba", message: "Nepodarilo sa vymazať event.")
                     return
                 }
+                Analytics.logEvent("delete_event", parameters: [
+                      "event_id": event.eventId as NSObject
+                    ])
                 print("Event and image deleted successfully.")
                 DispatchQueue.main.async {
                     // After deletion, navigate back to the previous screen.
@@ -268,6 +273,9 @@ class Event_detail_controller: UIViewController {
                 print("Error joining event: \(error.localizedDescription)")
                 return
             }
+            Analytics.logEvent("join_event", parameters: [
+              "event_id": event.eventId as NSObject
+            ])
             self.showAlert(title: "Uspech", message: "Uspesne ste sa prihlasili na event")
             
             // Notifikácia 15 min pred začiatkom
@@ -297,6 +305,9 @@ class Event_detail_controller: UIViewController {
                 print("Error leaving event: \(error.localizedDescription)")
                 return
             }
+            Analytics.logEvent("leave_event", parameters: [
+              "event_id": event.eventId as NSObject
+            ])
             self?.showAlert(title: "Uspesne odhlaseny.", message: "Urcite sa ale prihlaste na iny event ktory vam vyhovuje.")
             print("Successfully left the event.")
             // Re-fetch updated details so the UI gets refreshed.

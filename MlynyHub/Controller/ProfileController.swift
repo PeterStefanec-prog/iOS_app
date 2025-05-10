@@ -10,6 +10,8 @@ import FirebaseAuth
 import FirebaseFirestore
 import FirebaseStorage
 import PhotosUI
+import FirebaseCrashlytics
+
 
 class ProfileController: UIViewController {
     //outlets
@@ -161,6 +163,18 @@ class ProfileController: UIViewController {
                 }
             }
         }
+    }
+    
+    
+    @IBAction func CrashAppButtonPressed(_ sender: UIButton) {
+        //log
+        Crashlytics.crashlytics().log("Crash button tapped in ProfileController")
+        //logujeme meno
+        if let username = UsernameLabel.text {
+            Crashlytics.crashlytics().setCustomValue(username, forKey: "current_username")
+        }
+        //error
+        fatalError("Test Crashlytics crash from CrashAppButtonPressed")
     }
 }
 

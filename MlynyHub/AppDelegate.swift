@@ -10,6 +10,8 @@ import FirebaseAuth
 import Firebase
 import IQKeyboardManagerSwift
 import UserNotifications
+import FirebaseAnalytics
+import FirebaseCrashlytics
 
 @main
 class AppDelegate: UIResponder, UIApplicationDelegate {
@@ -20,6 +22,10 @@ class AppDelegate: UIResponder, UIApplicationDelegate {
         
         // enabling 3rd libraries
         FirebaseApp.configure()
+        // 2) Crashlytics – zapnúť zber (v produkcii je zapnuté defaultne)
+            Crashlytics.crashlytics().setCrashlyticsCollectionEnabled(true)
+        // 3) Analytics – pošle “app_open” event
+            Analytics.logEvent(AnalyticsEventAppOpen, parameters: nil)
         IQKeyboardManager.shared.isEnabled = true
         IQKeyboardManager.shared.resignOnTouchOutside = true
         

@@ -7,6 +7,7 @@
 
 import UIKit
 import FirebaseAuth
+import FirebaseAnalytics
 
 class LoginViewController: UIViewController {
 
@@ -35,6 +36,9 @@ class LoginViewController: UIViewController {
                     // loading icon
                     login_button_outlet.configuration?.showsActivityIndicator = false
                 } else {
+                    Analytics.logEvent(AnalyticsEventLogin, parameters: [
+                          "method": "email" as NSObject
+                        ])
                     self.performSegue(withIdentifier: "tab_bar", sender: self)
                     // loading icon
                     login_button_outlet.configuration?.showsActivityIndicator = false

@@ -8,6 +8,7 @@
 import UIKit
 import FirebaseAuth
 import Firebase
+import FirebaseAnalytics
 
 class RegisterViewController: UIViewController {
     
@@ -81,6 +82,10 @@ class RegisterViewController: UIViewController {
                     } else {
                         // Successfully stored additional user info
                         print("User data saved successfully!")
+                        //log analytics
+                        Analytics.logEvent(AnalyticsEventLogin, parameters: [
+                              "method": "email" as NSObject
+                            ])
                         // navigate to the next screen
                         self.performSegue(withIdentifier: "tab_bar", sender: self)
                     }

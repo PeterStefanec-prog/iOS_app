@@ -10,6 +10,8 @@ import FirebaseFirestore
 import FirebaseStorage
 import MapKit
 import FirebaseAuth
+import FirebaseAnalytics
+
 
 class Add_event_view_controller: UIViewController {
     
@@ -128,17 +130,26 @@ class Add_event_view_controller: UIViewController {
             eventData["ImageURL"] = image_Url
         }
         
-        // upload event to the database
-        db.collection("Events").addDocument(data: eventData) { [weak self] error in
+        let docRef = db.collection("Events").document()
+
+          docRef.setData(eventData) { [weak self] error in
+            guard let self = self else { return }
             if let error = error {
-                print("Error adding document: \(error.localizedDescription)")
-                self?.showAlert(title: "Chyba", message: "Nepodarilo sa vytvoriť event. Skús to znova.")
+              print("Error adding document: \(error)")
+              self.showAlert(title: "Chyba", message: "Nepodarilo sa vytvoriť event. Skús to znova.")
             } else {
-                print("Event successfully added!")
-                self?.showAlert(title: "Úspech", message: "Event bol úspešne vytvorený!")
-                self?.resetForm()
+              print("Event successfully added!")
+              self.showAlert(title: "Úspech", message: "Event bol úspešne vytvorený!")
+                //store analytics log
+              Analytics.logEvent("create_event", parameters: [
+                "event_id": docRef.documentID,
+                "title":    title,
+                "slots":    participantSlots
+              ])
+
+              self.resetForm()
             }
-        }
+          }
         
     }
     
