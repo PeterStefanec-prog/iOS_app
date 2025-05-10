@@ -353,7 +353,7 @@
 				CLANG_ENABLE_MODULES = YES;
 				CODE_SIGN_STYLE = Automatic;
 				CURRENT_PROJECT_VERSION = 1;
-				DEVELOPMENT_TEAM = VHFJG97A4L;
+				DEVELOPMENT_TEAM = 4FMQ6YC74V;
 				GENERATE_INFOPLIST_FILE = YES;
 				INFOPLIST_FILE = MlynyHub/Info.plist;
 				INFOPLIST_KEY_NSLocationWhenInUseUsageDescription = "We need your location to select event place.";

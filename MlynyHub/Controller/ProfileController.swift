@@ -30,6 +30,8 @@ class ProfileController: UIViewController {
 
     override func viewDidLoad() {
         super.viewDidLoad()
+        // Set default image if none
+        Profile_picture_image.image = UIImage(named: "Default_pfp")
         setupProfileImageView()
         loadProfile()
     }
@@ -42,24 +44,48 @@ class ProfileController: UIViewController {
     //loading profile from db
     private func loadProfile() {
         guard let ref = userRef else { return }
-        ref.getDocument { [weak self] snapshot, error in
+        ref.addSnapshotListener { [weak self] snapshot, error in
             guard let self = self, let data = snapshot?.data(), error == nil else { return }
+            //changing username…
             self.UsernameLabel.text = data["username"] as? String
             if let name = data["name"] as? String,
                let surname = data["surname"] as? String {
                 self.FirstNameLastNameLabel.text = "\(name) \(surname)"
             }
-            self.AboutMeLabel.text = data["aboutMe"] as? String ?? ""
-            self.UniversityLabel.text = data["university"] as? String ?? ""
-            self.FacultyLabel.text = data["faculty"] as? String ?? ""
+            //changing aboutme…
+            let aboutRaw = (data["aboutMe"] as? String)?
+                .trimmingCharacters(in: .whitespacesAndNewlines)
+            let aboutVal = (aboutRaw?.isEmpty == false) ? aboutRaw! : "none"
+            self.AboutMeLabel.text = "About me: \(aboutVal)"
+            //changing uni…
+            let uniRaw = (data["university"] as? String)?
+                .trimmingCharacters(in: .whitespacesAndNewlines)
+            let uniVal = (uniRaw?.isEmpty == false) ? uniRaw! : "none"
+            self.UniversityLabel.text = "University: \(uniVal)"
+            //changing faculty…
+            let facRaw = (data["faculty"] as? String)?
+                .trimmingCharacters(in: .whitespacesAndNewlines)
+            let facVal = (facRaw?.isEmpty == false) ? facRaw! : "none"
+            self.FacultyLabel.text = "Faculty: \(facVal)"
+            //changing profile picture…
             if let urlString = data["profileImageURL"] as? String,
                let url = URL(string: urlString) {
-                URLSession.shared.dataTask(with: url) { data, _, _ in
-                    guard let data = data, let img = UIImage(data: data) else { return }
-                    DispatchQueue.main.async {
-                        self.Profile_picture_image.image = img
+                var req = URLRequest(url: url,
+                                     cachePolicy: .returnCacheDataElseLoad,
+                                     timeoutInterval: 60)
+                URLSession.shared.dataTask(with: req) { data, response, _ in
+                    if let data = data, let img = UIImage(data: data) {
+                        if let resp = response {
+                            let cached = CachedURLResponse(response: resp, data: data)
+                            URLCache.shared.storeCachedResponse(cached, for: req)
+                        }
+                        DispatchQueue.main.async { self.Profile_picture_image.image = img }
+                    } else {
+                        DispatchQueue.main.async { self.Profile_picture_image.image = UIImage(named: "Default_pfp") }
                     }
                 }.resume()
+            } else {
+                DispatchQueue.main.async { self.Profile_picture_image.image = UIImage(named: "Default_pfp") }
             }
         }
     }
@@ -94,7 +120,7 @@ class ProfileController: UIViewController {
         alert.addTextField { tf in tf.placeholder = placeholder }
         alert.addAction(UIAlertAction(title: "Zrušiť", style: .cancel))
         alert.addAction(UIAlertAction(title: "Uložiť", style: .default) { _ in
-            guard let text = alert.textFields?.first?.text, !text.isEmpty,
+            guard let text = alert.textFields?.first?.text?.trimmingCharacters(in: .whitespacesAndNewlines), !text.isEmpty,
                   let ref = self.userRef else { return }
             ref.updateData([key: text]) { error in
                 if let e = error {
@@ -104,9 +130,9 @@ class ProfileController: UIViewController {
                     DispatchQueue.main.async {
                         switch key {
                         case "username": self.UsernameLabel.text = text
-                        case "aboutMe": self.AboutMeLabel.text = text
-                        case "university": self.UniversityLabel.text = text
-                        case "faculty": self.FacultyLabel.text = text
+                        case "aboutMe": self.AboutMeLabel.text = "About me: \(text)"
+                        case "university": self.UniversityLabel.text = "University: \(text)"
+                        case "faculty": self.FacultyLabel.text = "Faculty: \(text)"
                         default: break
                         }
                     }
@@ -115,6 +141,7 @@ class ProfileController: UIViewController {
         })
         present(alert, animated: true)
     }
+
     //uploading pfp
     private func uploadProfileImage(_ image: UIImage) {
         guard let uid = Auth.auth().currentUser?.uid,

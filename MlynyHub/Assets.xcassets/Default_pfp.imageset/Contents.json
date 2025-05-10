@@ -1,0 +1,23 @@
+{
+  "images" : [
+    {
+      "filename" : "default-avatar-icon-of-social-media-user-vector.jpg",
+      "idiom" : "universal",
+      "scale" : "1x"
+    },
+    {
+      "filename" : "default-avatar-icon-of-social-media-user-vector 1.jpg",
+      "idiom" : "universal",
+      "scale" : "2x"
+    },
+    {
+      "filename" : "default-avatar-icon-of-social-media-user-vector 2.jpg",
+      "idiom" : "universal",
+      "scale" : "3x"
+    }
+  ],
+  "info" : {
+    "author" : "xcode",
+    "version" : 1
+  }
+}

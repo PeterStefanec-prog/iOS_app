@@ -82,7 +82,7 @@ class RegisterViewController: UIViewController {
                         // Successfully stored additional user info
                         print("User data saved successfully!")
                         // navigate to the next screen
-                        self.performSegue(withIdentifier: "register_to_events", sender: self)
+                        self.performSegue(withIdentifier: "tab_bar", sender: self)
                     }
                 }
                 // loading icon

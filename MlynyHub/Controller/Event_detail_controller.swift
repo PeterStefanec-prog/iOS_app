@@ -28,6 +28,9 @@ class Event_detail_controller: UIViewController {
     @IBOutlet weak var descriptionLabel: UILabel!
     @IBOutlet weak var eventImageView: UIImageView!
     @IBOutlet weak var eventLocation: UILabel!
+    @IBOutlet weak var Change_Date_Button: UIButton!
+    @IBOutlet weak var Change_date_pencil: UIImageView!
+    
     
     // Button will change text based on user status: "Delete Event" (if admin),
     // "Join Event" (if not a participant) or "Leave Event" (if already joined)
@@ -68,6 +71,12 @@ class Event_detail_controller: UIViewController {
         actionButton.layer.cornerRadius = 10
         actionButton.isHidden = true // hidden while we identify the state of event - full ..
         
+        //skryje ceruzky
+        Change_date_pencil.isHidden = true
+        Change_date_pencil.isUserInteractionEnabled = false
+        Change_Date_Button.isHidden = true
+        Change_Date_Button.isUserInteractionEnabled = false
+        
         // 1) keby daco
         eventLocation.text = "Načítavam adresu…"
         // 2) Spusti reverse geocoding
@@ -107,6 +116,8 @@ class Event_detail_controller: UIViewController {
                 let expectedAdminPath = "users/\(currentUser.uid)"
                 self.isAdmin = (adminRef.path == expectedAdminPath)
             }
+            
+            self.updateDateEditingUI()
             
             // 2. Update the slot info using real Firestore values.
             let filledSlots = data["Filled slots"] as? Int ?? 0
@@ -364,6 +375,80 @@ class Event_detail_controller: UIViewController {
                 self.eventImageView.image = img
             }
         }.resume()
+    }
+    
+    
+    @IBAction func ChangeDateButton(_ sender: UIButton) {
+        // check
+        print("→ tapped, isAdmin=\(isAdmin)")
+
+        guard ensureOnline(), isAdmin, let event = event else { return }
+
+        let datePicker = UIDatePicker()
+        datePicker.datePickerMode = .dateAndTime
+        if #available(iOS 14.0, *) {
+            datePicker.preferredDatePickerStyle = .wheels
+        }
+
+        let alert = UIAlertController(title: "Zmeniť dátum",
+                                      message: "\n\n\n\n\n\n",
+                                      preferredStyle: .actionSheet)
+        alert.view.addSubview(datePicker)
+        datePicker.translatesAutoresizingMaskIntoConstraints = false
+        NSLayoutConstraint.activate([
+            datePicker.leadingAnchor.constraint(equalTo: alert.view.leadingAnchor, constant: 8),
+            datePicker.trailingAnchor.constraint(equalTo: alert.view.trailingAnchor, constant: -8),
+            datePicker.topAnchor.constraint(equalTo: alert.view.topAnchor, constant: 40),
+            datePicker.heightAnchor.constraint(equalToConstant: 150)
+        ])
+
+        alert.addAction(.init(title: "Zrušiť", style: .cancel))
+        alert.addAction(.init(title: "OK", style: .default) { _ in
+            // 1) získame nový dátum z datePickeru
+            let newDate = datePicker.date
+
+            // 2) formátujeme ho do labelu
+            let formatter = DateFormatter()
+            formatter.dateFormat = "dd.MM.yyyy HH:mm"
+            self.dateLabel.text = formatter.string(from: newDate)
+
+            // 3) prevedieme na Firebase Timestamp a updatneme dokument
+            let timestamp = Timestamp(date: newDate)
+            Firestore.firestore()
+                .collection("Events")
+                .document(event.eventId)
+                .updateData(["Date": timestamp]) { error in
+                    if let error = error {
+                        self.showAlert(
+                            title: "Chyba",
+                            message: "Nepodarilo sa zmeniť dátum: \(error.localizedDescription)"
+                        )
+                    } else {
+                        self.showAlert(
+                            title: "Úspech",
+                            message: "Dátum bol úspešne zmenený."
+                        )
+                    }
+            }
+        })
+
+
+        // **!!! Pridaj toto, aby sa actionSheet nestrhol na iPade:**
+        if let pop = alert.popoverPresentationController {
+            pop.sourceView = Change_Date_Button
+            pop.sourceRect = Change_Date_Button.bounds
+        }
+
+        present(alert, animated: true)
+    }
+
+
+    
+    private func updateDateEditingUI() {
+        Change_date_pencil.isHidden = !isAdmin
+        Change_date_pencil.isUserInteractionEnabled = isAdmin
+        Change_Date_Button.isHidden = !isAdmin
+        Change_Date_Button.isUserInteractionEnabled = isAdmin
     }
 }
 
