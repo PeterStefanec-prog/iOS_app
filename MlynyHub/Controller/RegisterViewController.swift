@@ -87,7 +87,7 @@ class RegisterViewController: UIViewController {
                               "method": "email" as NSObject
                             ])
                         // navigate to the next screen
-                        self.performSegue(withIdentifier: "tab_bar", sender: self)
+                        self.performSegue(withIdentifier: "succ_reg", sender: self)
                     }
                 }
                 // loading icon
