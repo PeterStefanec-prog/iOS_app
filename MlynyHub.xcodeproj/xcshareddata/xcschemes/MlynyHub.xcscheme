@@ -1,0 +1,121 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<Scheme
+   LastUpgradeVersion = "1620"
+   version = "1.7">
+   <BuildAction
+      parallelizeBuildables = "YES"
+      buildImplicitDependencies = "YES"
+      buildArchitectures = "Automatic">
+      <BuildActionEntries>
+         <BuildActionEntry
+            buildForTesting = "YES"
+            buildForRunning = "YES"
+            buildForProfiling = "YES"
+            buildForArchiving = "YES"
+            buildForAnalyzing = "YES">
+            <BuildableReference
+               BuildableIdentifier = "primary"
+               BlueprintIdentifier = "E938ACA62D72418200F8F31E"
+               BuildableName = "MlynyHub.app"
+               BlueprintName = "MlynyHub"
+               ReferencedContainer = "container:MlynyHub.xcodeproj">
+            </BuildableReference>
+         </BuildActionEntry>
+      </BuildActionEntries>
+   </BuildAction>
+   <TestAction
+      buildConfiguration = "Debug"
+      selectedDebuggerIdentifier = "Xcode.DebuggerFoundation.Debugger.LLDB"
+      selectedLauncherIdentifier = "Xcode.DebuggerFoundation.Launcher.LLDB"
+      shouldUseLaunchSchemeArgsEnv = "YES"
+      shouldAutocreateTestPlan = "YES">
+      <Testables>
+         <TestableReference
+            skipped = "NO"
+            parallelizable = "YES">
+            <BuildableReference
+               BuildableIdentifier = "primary"
+               BlueprintIdentifier = "E938ACBC2D72418400F8F31E"
+               BuildableName = "MlynyHubTests.xctest"
+               BlueprintName = "MlynyHubTests"
+               ReferencedContainer = "container:MlynyHub.xcodeproj">
+            </BuildableReference>
+         </TestableReference>
+         <TestableReference
+            skipped = "NO"
+            parallelizable = "YES">
+            <BuildableReference
+               BuildableIdentifier = "primary"
+               BlueprintIdentifier = "E938ACC62D72418400F8F31E"
+               BuildableName = "MlynyHubUITests.xctest"
+               BlueprintName = "MlynyHubUITests"
+               ReferencedContainer = "container:MlynyHub.xcodeproj">
+            </BuildableReference>
+         </TestableReference>
+      </Testables>
+   </TestAction>
+   <LaunchAction
+      buildConfiguration = "Release"
+      selectedDebuggerIdentifier = ""
+      selectedLauncherIdentifier = "Xcode.IDEFoundation.Launcher.PosixSpawn"
+      launchStyle = "0"
+      useCustomWorkingDirectory = "NO"
+      ignoresPersistentStateOnLaunch = "NO"
+      debugDocumentVersioning = "YES"
+      debugServiceExtension = "internal"
+      allowLocationSimulation = "YES">
+      <BuildableProductRunnable
+         runnableDebuggingMode = "0">
+         <BuildableReference
+            BuildableIdentifier = "primary"
+            BlueprintIdentifier = "E938ACA62D72418200F8F31E"
+            BuildableName = "MlynyHub.app"
+            BlueprintName = "MlynyHub"
+            ReferencedContainer = "container:MlynyHub.xcodeproj">
+         </BuildableReference>
+      </BuildableProductRunnable>
+   </LaunchAction>
+   <ProfileAction
+      buildConfiguration = "Release"
+      shouldUseLaunchSchemeArgsEnv = "YES"
+      savedToolIdentifier = ""
+      useCustomWorkingDirectory = "NO"
+      debugDocumentVersioning = "YES">
+      <BuildableProductRunnable
+         runnableDebuggingMode = "0">
+         <BuildableReference
+            BuildableIdentifier = "primary"
+            BlueprintIdentifier = "E938ACA62D72418200F8F31E"
+            BuildableName = "MlynyHub.app"
+            BlueprintName = "MlynyHub"
+            ReferencedContainer = "container:MlynyHub.xcodeproj">
+         </BuildableReference>
+      </BuildableProductRunnable>
+   </ProfileAction>
+   <AnalyzeAction
+      buildConfiguration = "Debug">
+   </AnalyzeAction>
+   <ArchiveAction
+      buildConfiguration = "Release"
+      customArchiveName = "MlynyHub"
+      revealArchiveInOrganizer = "YES">
+      <PostActions>
+         <ExecutionAction
+            ActionType = "Xcode.IDEStandardExecutionActionsCore.ExecutionActionType.ShellScriptAction">
+            <ActionContent
+               title = "Run Script"
+               scriptText = "#!/usr/bin/env bash&#10;set -eu pipefail&#10;&#10;# 1) n&#xe1;jdi kore&#x148; .xcarchive&#10;if [ -n &quot;${ARCHIVE_PATH:-}&quot; ]; then&#10;  DSYM_ROOT=&quot;${ARCHIVE_PATH}/dSYMs&quot;&#10;else&#10;  echo &quot;&#x26a0;&#xfe0f; ARCHIVE_PATH nie je nastaven&#xfd;&quot;&#10;  exit 1&#10;fi&#10;&#10;# 2) nahraj v&#x161;etky .dSYM bal&#xed;ky&#10;for dSYM in &quot;$DSYM_ROOT&quot;/*.dSYM; do&#10;  if [ -e &quot;$dSYM&quot; ]; then&#10;    echo &quot;&#x1f4e4; Uploading dSYM: $dSYM&quot;&#10;    &quot;${PODS_ROOT}/FirebaseCrashlytics/upload-symbols&quot; \&#10;      -gsp &quot;${PROJECT_DIR}/${INFOPLIST_FILE}&quot; \&#10;      -p ios \&#10;      &quot;$dSYM&quot;&#10;  else&#10;    echo &quot;&#x26a0;&#xfe0f; &#x17d;iadne .dSYM v $DSYM_ROOT&quot;&#10;    exit 1&#10;  fi&#10;done&#10;">
+               <EnvironmentBuildable>
+                  <BuildableReference
+                     BuildableIdentifier = "primary"
+                     BlueprintIdentifier = "E938ACA62D72418200F8F31E"
+                     BuildableName = "MlynyHub.app"
+                     BlueprintName = "MlynyHub"
+                     ReferencedContainer = "container:MlynyHub.xcodeproj">
+                  </BuildableReference>
+               </EnvironmentBuildable>
+            </ActionContent>
+         </ExecutionAction>
+      </PostActions>
+   </ArchiveAction>
+</Scheme>
