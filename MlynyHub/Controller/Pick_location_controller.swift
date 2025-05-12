@@ -60,20 +60,22 @@ class Pick_location_controller: UIViewController, MKMapViewDelegate, UISearchBar
     
     
     //ukazovatel aktualnej polohy
-    func locationManager(_ manager: CLLocationManager, didUpdateLocations locations: [CLLocation]) {
-        guard let location = locations.last else { return }
-        let coordinate = location.coordinate
-        getAddressFromCoordinates(coordinate) { [weak self] address in
-            guard let self = self else { return }
-            self.addPin(at: coordinate, address: address)
+    @objc func locationManager(_ manager: CLLocationManager,
+                               didUpdateLocations locations: [CLLocation]) {
+        guard let coord = locations.last?.coordinate else { return }
+        DispatchQueue.main.async {
+            self.getAddressFromCoordinates(coord) { address in
+                self.addPin(at: coord, address: address)
+            }
         }
     }
+
+
     
-    /*
-    func locationManager(_ manager: CLLocationManager, didFailWithError error: Error) {
-        print("Chyba pri získavaní aktuálnej polohy: \(error.localizedDescription)")
+    @objc func locationManager(_ manager: CLLocationManager,
+                               didFailWithError error: Error) {
+        print("Chyba pri získavaní polohy: \(error.localizedDescription)")
     }
-     */
     
     //long press prida pin a vrati coordinacie
     @objc func didLongPress(_ gesture: UILongPressGestureRecognizer) {
@@ -98,45 +100,47 @@ class Pick_location_controller: UIViewController, MKMapViewDelegate, UISearchBar
     func geocodeAddress(_ address: String) {
         let geocoder = CLGeocoder()
         geocoder.geocodeAddressString(address) { [weak self] placemarks, error in
-            guard let self = self, let placemark = placemarks?.first?.location else {
-                //print("Chyba pri vyhľadávaní adresy: \(error?.localizedDescription ?? "Neznáma chyba")")
-                return
+            guard
+                let self = self,
+                let location = placemarks?.first?.location
+            else { return }
+
+            let coordinate = location.coordinate
+            DispatchQueue.main.async {
+                self.addPin(at: coordinate, address: address)
+                let region = MKCoordinateRegion(center: coordinate,
+                                                latitudinalMeters: 500,
+                                                longitudinalMeters: 500)
+                self.Map_view.setRegion(region, animated: true)
             }
-            
-            let coordinate = placemark.coordinate
-            //pridanie pinu
-            self.addPin(at: coordinate, address: address)
-            let region = MKCoordinateRegion(center: coordinate, latitudinalMeters: 500, longitudinalMeters: 500)
-            self.Map_view.setRegion(region, animated: true)
         }
     }
+
     //získava z geokodu adresu
-    func getAddressFromCoordinates(_ coordinate: CLLocationCoordinate2D, completion: @escaping (String) -> Void) {
+    func getAddressFromCoordinates(_ coordinate: CLLocationCoordinate2D,
+                                   completion: @escaping (String) -> Void) {
         let geocoder = CLGeocoder()
-        let location = CLLocation(latitude: coordinate.latitude, longitude: coordinate.longitude)
-        
-        geocoder.reverseGeocodeLocation(location) { placemarks, error in
-            if let error = error {
-                //print("Chyba pri získavaní adresy: \(error.localizedDescription)")
-                completion("Neznáma adresa")
-                return
-            }
-            
+        geocoder.reverseGeocodeLocation(CLLocation(latitude: coordinate.latitude,
+                                                   longitude: coordinate.longitude)) { placemarks, error in
+            let address: String
             if let placemark = placemarks?.first {
-                let address = [
-                    placemark.name,
-                    placemark.thoroughfare,
-                    placemark.locality,
-                    placemark.administrativeArea,
-                    placemark.country
-                ].compactMap { $0 }.joined(separator: ", ")
-                
-                completion(address)
+                address = [placemark.name,
+                           placemark.thoroughfare,
+                           placemark.locality,
+                           placemark.administrativeArea,
+                           placemark.country]
+                          .compactMap { $0 }
+                          .joined(separator: ", ")
             } else {
-                completion("Neznáma adresa")
+                address = "Neznáma adresa"
+            }
+
+            DispatchQueue.main.async {
+                completion(address)
             }
         }
     }
+
 
     func addPin(at coordinate: CLLocationCoordinate2D, address: String) {
         Map_view.removeAnnotations(Map_view.annotations)
